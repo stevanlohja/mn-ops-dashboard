@@ -1,0 +1,387 @@
+@import "tailwindcss";
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Theme tokens — dark (default, brand) and light.
+   Components only ever reference the mn-* Tailwind utilities below, which
+   resolve through CSS variables, so every component is theme-aware for free.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* Brand palette mirrors midnight.network design tokens:
+   --default-background-color #101010 · --default-text-color #fff
+   --theme-color-primary #0000fe · --theme-color-primary-dark #0000d0
+   --theme-color-grey #4b4b4b · ring rgba(77,77,254,.5) (#4d4dfe)         */
+
+:root,
+[data-theme="dark"] {
+  --mn-bg:        #101010;   /* brand background (--default-background-color) */
+  --mn-surface:   #181818;   /* elevated surface (cards, nav)               */
+  --mn-surface-2: #222222;   /* raised surface (inputs, hover targets)      */
+  --mn-border:    #2a2a2a;   /* subtle borders on dark                       */
+  --mn-accent:    #0000fe;   /* brand primary (--theme-color-primary)        */
+  --mn-accent-2:  #4d4dfe;   /* brand ring / lighter accent (links on dark)  */
+  --mn-text:      #ffffff;   /* primary text (--default-text-color)          */
+  --mn-text-2:    #cccccc;   /* body / prose text                            */
+  --mn-muted:     #7a7a7a;   /* secondary / label text                       */
+  --mn-on-accent: #ffffff;   /* text on accent backgrounds                   */
+
+  --mn-ring:      rgba(77, 77, 254, .5); /* brand focus ring                 */
+
+  /* Severity / operational colours */
+  --mn-p0:       #f43f5e;    /* catastrophic                                */
+  --mn-p1:       #ef4444;    /* critical                                    */
+  --mn-p2:       #f97316;    /* high                                        */
+  --mn-p3:       #eab308;    /* medium / warning                            */
+  --mn-ok:       #22c55e;    /* healthy                                     */
+  --mn-escalate: #a855f7;    /* escalate                                    */
+}
+
+[data-theme="light"] {
+  --mn-bg:        #ffffff;   /* brand section-light background               */
+  --mn-surface:   #ffffff;
+  --mn-surface-2: #f2f2f2;
+  --mn-border:    #e6e6e6;   /* brand default border colour                  */
+  --mn-accent:    #0000fe;   /* same brand primary across themes             */
+  --mn-accent-2:  #0000d0;   /* --theme-color-primary-dark                   */
+  --mn-text:      #101010;   /* --alternative-text-color                     */
+  --mn-text-2:    #2e2e2e;
+  --mn-muted:     #4b4b4b;   /* --theme-color-grey                           */
+  --mn-on-accent: #ffffff;
+
+  --mn-ring:      rgba(0, 0, 254, .35);
+
+  --mn-p0:       #be123c;
+  --mn-p1:       #dc2626;
+  --mn-p2:       #ea580c;
+  --mn-p3:       #a16207;
+  --mn-ok:       #15803d;
+  --mn-escalate: #7e22ce;
+}
+
+@theme inline {
+  --color-background: var(--mn-bg);
+  --color-foreground: var(--mn-text);
+  --font-sans: var(--font-outfit);
+  --font-mono: var(--font-dm-mono);
+
+  --color-mn-bg:        var(--mn-bg);
+  --color-mn-surface:   var(--mn-surface);
+  --color-mn-surface-2: var(--mn-surface-2);
+  --color-mn-border:    var(--mn-border);
+  --color-mn-accent:    var(--mn-accent);
+  --color-mn-accent-2:  var(--mn-accent-2);
+  --color-mn-text:      var(--mn-text);
+  --color-mn-text-2:    var(--mn-text-2);
+  --color-mn-muted:     var(--mn-muted);
+  --color-mn-on-accent: var(--mn-on-accent);
+
+  --color-mn-p0:       var(--mn-p0);
+  --color-mn-p1:       var(--mn-p1);
+  --color-mn-p2:       var(--mn-p2);
+  --color-mn-p3:       var(--mn-p3);
+  --color-mn-ok:       var(--mn-ok);
+  --color-mn-escalate: var(--mn-escalate);
+}
+
+html {
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+body {
+  background: var(--mn-bg);
+  color: var(--mn-text);
+  font-family: var(--font-outfit), system-ui, sans-serif;
+}
+
+/* Brand focus ring — matches midnight.network --tw-ring-color */
+:focus-visible {
+  outline: 2px solid var(--mn-ring);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--mn-accent);
+  color: var(--mn-on-accent);
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Print: used by the report print view ──────────────────────────────── */
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #ffffff; color: #000000; }
+  .print-report {
+    color: #000000;
+  }
+  .print-report * {
+    color: #000000 !important;
+    background: transparent !important;
+    border-color: #cccccc !important;
+  }
+}
+
+/* ── Runbook / report prose styles (theme-aware) ───────────────────────── */
+
+.prose-runbook {
+  color: var(--mn-text-2);
+  line-height: 1.75;
+  max-width: 72rem;
+}
+
+.prose-runbook h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--mn-text);
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--mn-border);
+}
+
+.prose-runbook h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--mn-text);
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--mn-border);
+}
+
+.prose-runbook h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--mn-text-2);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose-runbook h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--mn-muted);
+  margin-top: 1.25rem;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.prose-runbook p {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose-runbook a {
+  color: var(--mn-accent-2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-runbook a:hover {
+  color: var(--mn-accent);
+}
+
+.prose-runbook strong {
+  color: var(--mn-text);
+  font-weight: 600;
+}
+
+.prose-runbook em {
+  color: var(--mn-muted);
+}
+
+.prose-runbook code {
+  font-family: var(--font-dm-mono), ui-monospace, monospace;
+  font-size: 0.85em;
+  background: var(--mn-surface-2);
+  color: var(--mn-accent-2);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--mn-border);
+}
+
+.prose-runbook pre {
+  background: var(--mn-surface);
+  border: 1px solid var(--mn-border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 1.25rem 0;
+}
+
+.prose-runbook pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--mn-text-2);
+  font-size: 0.875rem;
+}
+
+.prose-runbook ul,
+.prose-runbook ol {
+  padding-left: 1.5rem;
+  margin: 0.75rem 0;
+}
+
+.prose-runbook ul  { list-style-type: disc; }
+.prose-runbook ol  { list-style-type: decimal; }
+.prose-runbook li  { margin: 0.25rem 0; }
+
+.prose-runbook li > ul,
+.prose-runbook li > ol {
+  margin: 0.25rem 0;
+}
+
+.prose-runbook blockquote {
+  border-left: 3px solid var(--mn-accent);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: var(--mn-muted);
+  font-style: italic;
+}
+
+.prose-runbook hr {
+  border: none;
+  border-top: 1px solid var(--mn-border);
+  margin: 2rem 0;
+}
+
+.prose-runbook table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 0.9rem;
+}
+
+.prose-runbook thead tr {
+  border-bottom: 2px solid var(--mn-border);
+}
+
+.prose-runbook th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  color: var(--mn-muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.prose-runbook td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--mn-surface-2);
+  color: var(--mn-text-2);
+}
+
+.prose-runbook tr:last-child td {
+  border-bottom: none;
+}
+
+.prose-runbook li input[type="checkbox"] {
+  margin-right: 0.5rem;
+  accent-color: var(--mn-accent);
+}
+
+/* ── Admonitions (MkDocs `!!!` blocks → :::directive → .admonition) ─────── */
+
+.prose-runbook .admonition {
+  margin: 1.25rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border-left: 3px solid var(--mn-accent-2);
+  background: var(--mn-surface-2);
+  font-size: 0.95em;
+}
+
+.prose-runbook .admonition > :first-child {
+  margin-top: 0;
+}
+.prose-runbook .admonition > :last-child {
+  margin-bottom: 0;
+}
+
+.prose-runbook .admonition-title {
+  font-weight: 600;
+  color: var(--mn-text);
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Type accents — left border + title colour key off the admonition type. */
+.prose-runbook .admonition-note,
+.prose-runbook .admonition-info,
+.prose-runbook .admonition-abstract {
+  border-left-color: var(--mn-accent-2);
+}
+.prose-runbook .admonition-note .admonition-title,
+.prose-runbook .admonition-info .admonition-title,
+.prose-runbook .admonition-abstract .admonition-title {
+  color: var(--mn-accent-2);
+}
+
+.prose-runbook .admonition-warning {
+  border-left-color: var(--mn-p3);
+}
+.prose-runbook .admonition-warning .admonition-title {
+  color: var(--mn-p3);
+}
+
+.prose-runbook .admonition-danger,
+.prose-runbook .admonition-failure,
+.prose-runbook .admonition-bug {
+  border-left-color: var(--mn-p1);
+}
+.prose-runbook .admonition-danger .admonition-title,
+.prose-runbook .admonition-failure .admonition-title,
+.prose-runbook .admonition-bug .admonition-title {
+  color: var(--mn-p1);
+}
+
+.prose-runbook .admonition-tip,
+.prose-runbook .admonition-success {
+  border-left-color: var(--mn-ok);
+}
+.prose-runbook .admonition-tip .admonition-title,
+.prose-runbook .admonition-success .admonition-title {
+  color: var(--mn-ok);
+}
+
+/* ── Board mode (full-screen kiosk) ────────────────────────────────────── */
+
+/* Slow cross-fade for spotlight/ticker content (gentler than fadeSlide). */
+@keyframes boardFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.board-fade {
+  animation: boardFade 0.6s ease both;
+}
+
+/* Chrome that stays faint until hovered (e.g. the fullscreen button). */
+.board-hover-show {
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+.board-hover-show:hover {
+  opacity: 1;
+}
+
+/* Toggled by JS after pointer inactivity so the cursor disappears on a TV. */
+.board-cursor-hidden,
+.board-cursor-hidden * {
+  cursor: none !important;
+}

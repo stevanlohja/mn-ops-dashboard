@@ -1,0 +1,149 @@
+# PO Dash 2.0 — Midnight Network Operations Dashboard
+
+Internal dashboard for monitoring Midnight Network health and FNO validators. Version 2.0 is a ground-up rework of the `po_dash_0.1` prototype with four headline additions: **validator attestation tracking**, **report generation**, **Discord webhook alerting**, and **dark/light theming** — on a modular architecture with strict separation of concerns.
+
+Data source: the public Substrate telemetry feed at `wss://telemetry.shielded.tools/feed/` (Mainnet, Preprod, Preview). Everything runs client-side in the browser; there is no backend, database, or API key.
+
+---
+
+## Run locally
+
+Requires Node.js 20+ (tested on 22) and pnpm (npm/yarn also work).
+
+```bash
+pnpm install
+pnpm dev        # development server → http://localhost:3000
+```
+
+Production build:
+
+```bash
+pnpm build
+pnpm start      # serves the optimized build → http://localhost:3000
+pnpm lint       # eslint
+```
+
+The app is a Next.js App Router project with no server-side state — it deploys as-is to any serverless host (Vercel, Netlify, Cloudflare) or any box that can run `next start`.
+
+---
+
+## Pages
+
+| Route | What it does |
+|-------|--------------|
+| `/dashboard` | Real-time network health: best/finalized block, finality gap, block time, alerts with runbook links, and per-node tables (validators, gateways, boot nodes) with a detail drawer. |
+| `/attestation` | Per-validator attestation: block authorship counts and share vs the expected round-robin share, finality lag, block propagation, uptime, connection flaps, and a composite 0–100 score. Includes a live feed of recently authored blocks. |
+| `/reports` | Report builder: snapshot the current network state into Markdown, **plain text (Notifi-safe)**, JSON, or CSV. Toggle sections, then copy to clipboard, download, or print. |
+| `/diagnostic` | Guided incident diagnostic tree (carried over from v0.1). |
+| `/runbooks` | Runbook index + rendered runbook pages (wired up in 2.0 — these were dead stubs in v0.1). |
+| `/docs` | Operator documentation mirrored from the `midnight-network-ops` MkDocs site (FNO guides, architecture, processes, ADRs, FAQ), rendered natively in the dashboard theme. See [Documentation](#documentation). |
+
+Theme toggle (dark/light) lives in the nav. Dark is the brand default; the choice persists in `localStorage` and respects the OS preference until you choose explicitly.
+
+## Discord alerts
+
+The bell icon in the nav configures push alerting to a Discord channel via webhook — no backend needed (Discord's webhook endpoint accepts browser POSTs directly). Paste a webhook URL (`https://discord.com/api/webhooks/<id>/<token>`), pick a trigger level, optionally add a role mention (`<@&role-id>`), and enable. Config persists in `localStorage`; alerting runs on every page since the watcher is mounted in the root layout.
+
+Two trigger levels:
+
+| Level | Fires on |
+|-------|----------|
+| **Consensus failures only** (default) | Validators below GRANDPA 2/3 (< 9), finality gap ≥ 7 blocks, avg block time > 30s, validator isolated (0 peers) |
+| **Degradation + consensus failures** | Also < 11 validators, low peer counts, block time > 10s, finality gap ≥ 4 |
+
+Delivery behavior (edge-triggered, in `lib/notify/engine.ts`):
+
+- A new or escalated alert posts immediately (throttled to one evaluation per 5s).
+- Still-active **critical** alerts re-post every 15 minutes; warnings post once until resolved.
+- Recoveries post a green "resolved" embed.
+- Alerting arms 30s after the feed goes live (and re-arms on reconnect/network switch) so bootstrap noise — e.g. "2/13 validators online" while the node list is still filling in — never pages anyone.
+- Role/user mentions are only allowed when explicitly typed into the mention field; alert text itself can never ping.
+
+### A note on attestation methodology
+
+Telemetry does not expose signed block authorship, so the dashboard attributes a block to the **first node that reports a new height** on the feed. That is an observability heuristic — good for spotting validators that have silently stopped producing — not a cryptographic proof. Scores accumulate per dashboard session and reset on reload or network switch. The caveat is embedded in generated reports too.
+
+The attestation score is a weighted composite (re-normalised when a component lacks data):
+
+| Component | Weight | Signal |
+|-----------|--------|--------|
+| Presence | 0.35 | online + feed freshness, minus reconnect flaps |
+| Authorship | 0.25 | observed share vs expected `1/n` round-robin share |
+| Finality | 0.25 | node finalized height vs network finalized head |
+| Peer health | 0.15 | peer count vs the network's expected peer target |
+
+---
+
+## Documentation
+
+The `/docs` section embeds the operator documentation that lives in the `midnight-network-ops` repo (a MkDocs Material site) directly inside the dashboard, rendered in the dashboard's own theme rather than as a separate site — so there is no second look-and-feel to maintain.
+
+Content is **vendored**, not built from a second tool. A sync script reads the read-only ops clone and regenerates everything:
+
+```bash
+pnpm docs:sync        # re-run whenever the ops-repo docs change
+```
+
+It does three things (`scripts/sync-docs.mjs`):
+
+1. Copies `git/midnight-network-ops/docs/**/*.md` into `content/docs/` (the ops clone is read-only; the script only reads it).
+2. Parses the `nav:` in `mkdocs.yml` into `lib/docs/manifest.ts` (sidebar tree) and generates `lib/docs/loader.ts` (static MDX import registry).
+3. Rewrites two pieces of MkDocs-specific syntax so the content renders as plain markdown in the dashboard:
+   - admonitions (`!!! note "Title"`) → `remark-directive` containers, styled as `.admonition` blocks via `app/globals.css`;
+   - inter-doc links (`](install-node-and-keys.md)`) → dashboard routes (`/docs/...`).
+
+Mermaid diagrams stay as fenced blocks and render client-side via `components/docs/Mermaid.tsx` (wired through a `pre` override in `mdx-components.tsx`), theme-aware with the rest of the dashboard.
+
+`content/docs/`, `lib/docs/manifest.ts`, and `lib/docs/loader.ts` are generated — do not edit them by hand; change the source in the ops repo and re-run `pnpm docs:sync`.
+
+---
+
+## Architecture
+
+Separation of concerns is the organizing rule: **`lib/` is pure TypeScript with zero React imports** (unit-testable in isolation), `providers/` binds that logic to React, `components/` renders it, `app/` only routes.
+
+```
+po_dash_2.0/
+├── app/                        # Routes only — no logic
+│   ├── layout.tsx              # Fonts, providers, nav, theme-init script
+│   ├── globals.css             # Theme tokens (dark/light CSS variables)
+│   ├── dashboard/ attestation/ reports/ diagnostic/ runbooks/[slug]/
+├── lib/                        # Pure domain logic (framework-free)
+│   ├── telemetry/              # types, feed parser, network configs, node classifier
+│   ├── state/                  # telemetry-reducer.ts — single pure state transition
+│   ├── attestation/            # record types + composite scoring
+│   ├── health/                 # severity evaluation + alert building
+│   ├── notify/                 # Discord alert engine (edge-trigger/dedup) + webhook payloads
+│   ├── reports/                # report model build + md/txt/json/csv renderers
+│   ├── runbooks/ diagnostic/   # manifest/loader, diagnostic tree data
+│   └── format.ts               # shared display formatters
+├── providers/
+│   ├── TelemetryProvider.tsx   # WebSocket lifecycle → dispatch into reducer
+│   ├── NotifyProvider.tsx      # alert watcher → Discord webhook delivery
+│   └── ThemeProvider.tsx       # dark/light state, persistence, OS sync
+├── components/
+│   ├── ui/                     # Badge, Stat, PageHeader primitives
+│   ├── layout/                 # SiteNav, ThemeToggle
+│   ├── notify/                 # NotifyMenu (bell icon webhook settings)
+│   ├── dashboard/ attestation/ reports/ runbooks/ diagnostic/
+└── content/runbooks/           # Runbook markdown (rendered via MDX)
+```
+
+Key design decisions vs v0.1:
+
+- **Reducer store.** v0.1 called `setState` once per feed event (a busy message could trigger dozens of renders). 2.0 parses each WebSocket message into an event batch and applies it in a single pure reducer transition — one render per message, and all attestation bookkeeping lives in `lib/state/telemetry-reducer.ts` where it can be tested without a browser.
+- **Attestation keyed by node name.** Telemetry ids are reassigned on reconnect; names are stable. Records survive validator restarts, which is what makes session/disconnect counting possible.
+- **Reports are a frozen model.** `buildReport()` snapshots live state into a serialisable `ReportModel`; renderers never touch live state, so every export format is a pure function of the same snapshot.
+- **Theming via CSS variables.** Components only reference `mn-*` Tailwind tokens, which resolve through `data-theme`-scoped CSS variables — every component (including code carried over from v0.1) is theme-aware with no per-component work. An inline head script applies the persisted theme before first paint (no flash).
+- **Thresholds parameterised per network.** Expected validator count (13) and peer target (17) live in `lib/telemetry/networks.ts` instead of being hardcoded through the UI.
+
+## Operational thresholds
+
+| Check | Warning | Critical |
+|-------|---------|----------|
+| FNO validators online (mainnet, 13 expected) | < 11 | < 9 (below GRANDPA 2/3 — finality at risk) |
+| Finality gap | ≥ 4 blocks | ≥ 7 blocks |
+| Avg block time | > 10s | > 30s |
+| Validator peers (mainnet, 17 expected) | below target | 0 (isolated) |
+
+Alerts deep-link to the matching runbook under `/runbooks`.

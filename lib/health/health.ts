@@ -1,0 +1,168 @@
+import { NodeState, NetworkSummary } from "@/lib/telemetry/types";
+import { NETWORKS, NetworkId } from "@/lib/telemetry/networks";
+
+export type Severity = "ok" | "warning" | "critical";
+
+export interface HealthStatus {
+  validatorCount: Severity;
+  blockTime: Severity;
+  finalityGap: Severity;
+  peerCount: Severity; // worst across FNO nodes
+  overall: Severity;
+}
+
+export interface Alert {
+  id: string;
+  severity: Severity;
+  message: string;
+  runbook?: string;
+}
+
+export function worstSeverity(a: Severity, b: Severity): Severity {
+  const rank: Record<Severity, number> = { ok: 0, warning: 1, critical: 2 };
+  return rank[a] >= rank[b] ? a : b;
+}
+
+// Thresholds (mainnet, 13 FNOs):
+//   < 9 validators  = below GRANDPA 2/3 threshold → finality at risk
+//   < 11 validators = 3+ FNOs offline → reduced resilience
+const VALIDATOR_CRITICAL = 9;
+const VALIDATOR_WARNING = 11;
+const BLOCKTIME_WARNING_MS = 10_000;
+const BLOCKTIME_CRITICAL_MS = 30_000;
+const FINALITY_GAP_WARNING = 4;
+const FINALITY_GAP_CRITICAL = 7;
+
+export function evaluateHealth(
+  nodes: NodeState[],
+  summary: NetworkSummary | null,
+  network: NetworkId = "mainnet"
+): HealthStatus {
+  const cfg = NETWORKS[network];
+  const fnoNodes = nodes.filter((n) => n.isFno);
+  const onlineCount = fnoNodes.length;
+
+  let validatorCount: Severity = "ok";
+  if (onlineCount < VALIDATOR_CRITICAL) validatorCount = "critical";
+  else if (onlineCount < VALIDATOR_WARNING) validatorCount = "warning";
+
+  const avgMs = summary?.avgBlockTime ?? null;
+  let blockTime: Severity = "ok";
+  if (avgMs !== null) {
+    if (avgMs > BLOCKTIME_CRITICAL_MS) blockTime = "critical";
+    else if (avgMs > BLOCKTIME_WARNING_MS) blockTime = "warning";
+  }
+
+  let finalityGap: Severity = "ok";
+  if (summary && summary.bestBlock > 0 && summary.finalizedBlock > 0) {
+    const gap = summary.bestBlock - summary.finalizedBlock;
+    if (gap >= FINALITY_GAP_CRITICAL) finalityGap = "critical";
+    else if (gap >= FINALITY_GAP_WARNING) finalityGap = "warning";
+  }
+
+  // Peer count (worst FNO) — only judged on networks with a peer target
+  let peerCount: Severity = "ok";
+  if (cfg.expectedPeers !== null) {
+    for (const node of fnoNodes) {
+      if (node.peers === 0) {
+        peerCount = "critical";
+        break;
+      } else if (node.peers < cfg.expectedPeers) {
+        peerCount = worstSeverity(peerCount, "warning");
+      }
+    }
+  }
+
+  // Only zero-peer isolation (critical) affects overall status — low peer
+  // counts are informational.
+  const peerImpact: Severity = peerCount === "critical" ? "critical" : "ok";
+  const overall = [validatorCount, blockTime, finalityGap, peerImpact].reduce(worstSeverity, "ok");
+
+  return { validatorCount, blockTime, finalityGap, peerCount, overall };
+}
+
+export function buildAlerts(
+  nodes: NodeState[],
+  summary: NetworkSummary | null,
+  network: NetworkId = "mainnet"
+): Alert[] {
+  const cfg = NETWORKS[network];
+  const isMainnet = network === "mainnet";
+  const alerts: Alert[] = [];
+  const fnoNodes = nodes.filter((n) => n.isFno);
+  const vLabel = isMainnet ? "FNO validators" : "validators";
+  const total = cfg.expectedValidators;
+  const onlineCount = fnoNodes.length;
+
+  if (onlineCount < VALIDATOR_CRITICAL) {
+    alerts.push({
+      id: "validators-critical",
+      severity: "critical",
+      message: `Only ${onlineCount}${total ? `/${total}` : ""} ${vLabel} online — finality at risk`,
+      runbook: "runbook-04-outage",
+    });
+  } else if (onlineCount < VALIDATOR_WARNING) {
+    alerts.push({
+      id: "validators-warning",
+      severity: "warning",
+      message: `${onlineCount}${total ? `/${total}` : ""} ${vLabel} online — reduced resilience`,
+      runbook: "runbook-04-outage",
+    });
+  }
+
+  if (cfg.expectedPeers !== null) {
+    for (const node of fnoNodes) {
+      if (node.peers === 0) {
+        alerts.push({
+          id: `peers-zero-${node.id}`,
+          severity: "critical",
+          message: `${node.name}: 0 peers — validator isolated from network`,
+          runbook: "runbook-03-isolation",
+        });
+      } else if (node.peers < cfg.expectedPeers) {
+        alerts.push({
+          id: `peers-low-${node.id}`,
+          severity: "warning",
+          message: `${node.name}: ${node.peers} peers (expected ${cfg.expectedPeers})`,
+          runbook: "runbook-02-peers",
+        });
+      }
+    }
+  }
+
+  if (summary && summary.bestBlock > 0 && summary.finalizedBlock > 0) {
+    const gap = summary.bestBlock - summary.finalizedBlock;
+    if (gap >= FINALITY_GAP_CRITICAL) {
+      alerts.push({
+        id: "finality-critical",
+        severity: "critical",
+        message: `Finality gap is ${gap} blocks — GRANDPA stalled`,
+        runbook: "runbook-07-finality",
+      });
+    } else if (gap >= FINALITY_GAP_WARNING) {
+      alerts.push({
+        id: "finality-warning",
+        severity: "warning",
+        message: `Finality gap is ${gap} blocks — monitor closely`,
+        runbook: "runbook-07-finality",
+      });
+    }
+  }
+
+  if (summary?.avgBlockTime && summary.avgBlockTime > BLOCKTIME_CRITICAL_MS) {
+    alerts.push({
+      id: "blocktime-critical",
+      severity: "critical",
+      message: `Avg block time ${(summary.avgBlockTime / 1000).toFixed(1)}s — block production stalled`,
+      runbook: "runbook-04-outage",
+    });
+  } else if (summary?.avgBlockTime && summary.avgBlockTime > BLOCKTIME_WARNING_MS) {
+    alerts.push({
+      id: "blocktime-warning",
+      severity: "warning",
+      message: `Avg block time ${(summary.avgBlockTime / 1000).toFixed(1)}s — above normal`,
+    });
+  }
+
+  return alerts;
+}
