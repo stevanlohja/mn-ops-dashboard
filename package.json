@@ -2,6 +2,7 @@
   "name": "po_dash_2.0",
   "version": "2.0.0",
   "private": true,
+  "packageManager": "pnpm@10.15.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
