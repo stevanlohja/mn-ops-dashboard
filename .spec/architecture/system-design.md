@@ -14,7 +14,7 @@ content/     MDX content (runbooks, vendored docs). Rendered, not logic.
 
 ### `lib/` modules
 
-- `telemetry/` — feed parser, wire types, per-network config (`networks.ts`), node classifier.
+- `telemetry/` — feed parser, wire types, per-network config (`networks.ts`), node classifier, feed-endpoint helpers (`endpoints.ts`: default + validation/normalization for the user-configurable failover list).
 - `state/` — `telemetry-reducer.ts`: the single pure state transition.
 - `attestation/` — record types + composite scoring.
 - `health/` — severity evaluation (`evaluateHealth`) + alert building (`buildAlerts`).
@@ -50,6 +50,7 @@ wss telemetry feed
 - **Theming via CSS variables.** Components only reference `mn-*` tokens, which resolve through `data-theme`-scoped variables. Every component is theme-aware with no per-component work; an inline head script applies the persisted theme before first paint (no flash).
 - **Thresholds parameterized per network.** Expected validator count and peer target live in `lib/telemetry/networks.ts`, not hardcoded in UI.
 - **Client-only, no server state.** Deploys to any static/serverless host. Persistence is `localStorage`. Browser-only APIs are feature-detected.
+- **Configurable feed endpoints with failover.** The telemetry source is an ordered list (default `wss://telemetry.shielded.tools/feed/`), editable via the nav settings gear and persisted to `localStorage`. `TelemetryProvider`'s connect loop rotates to the next endpoint on each failed connection, so the dashboard fails over to a backup provider if the primary is down.
 
 ## Routes (`app/`)
 

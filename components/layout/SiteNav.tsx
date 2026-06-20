@@ -7,6 +7,7 @@ import { useTelemetry } from "@/providers/TelemetryProvider";
 import { NETWORKS, NETWORK_IDS, NetworkId, TELEMETRY_WEB_URL } from "@/lib/telemetry/networks";
 import { BASE_PATH } from "@/lib/basePath";
 import ThemeToggle from "./ThemeToggle";
+import SettingsMenu from "./SettingsMenu";
 import NotifyMenu from "@/components/notify/NotifyMenu";
 
 // Live monitoring views — always visible in the nav.
@@ -82,6 +83,7 @@ export default function SiteNav() {
                 />
               </svg>
             </a>
+            <SettingsMenu />
             <NotifyMenu />
             <ThemeToggle />
           </div>

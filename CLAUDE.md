@@ -43,13 +43,14 @@ These are the load-bearing rules of this codebase. Violating them breaks the arc
 
 1. **`lib/` is pure TypeScript — ZERO React imports.** Domain logic lives in `lib/` (framework-free, unit-testable). `providers/` bind it to React, `components/` render it, `app/` only routes. Never put logic in a route or a `<Component>`.
 2. **Theme tokens only.** Components reference `mn-*` Tailwind utilities (which resolve through `data-theme` CSS variables). **Never hardcode colors** — every component must work in dark and light.
-3. **No backend, no DB, no secrets.** Everything runs in the browser against `wss://telemetry.shielded.tools/feed/`. Persist user state in `localStorage`; **feature-detect** browser APIs (e.g. `wakeLock`, `requestFullscreen`).
+3. **No backend, no DB, no secrets.** Everything runs in the browser against a Substrate telemetry WebSocket feed — default `wss://telemetry.shielded.tools/feed/`, but **user-configurable with ordered failover** (see `lib/telemetry/endpoints.ts` + the provider's rotation loop). Persist user state in `localStorage`; **feature-detect** browser APIs (e.g. `wakeLock`, `requestFullscreen`).
 4. **One pure reducer owns telemetry state** ([`lib/state/telemetry-reducer.ts`](lib/state/telemetry-reducer.ts)): each WebSocket message → one event batch → one render. Attestation is keyed by node **name** (telemetry ids churn on reconnect).
 5. **No `setState` directly in a `useEffect` body** (the `react-hooks/set-state-in-effect` rule is enforced). Defer to a timer/`requestAnimationFrame`/event callback.
 6. **Turbopack is the default bundler.** MDX remark plugins in [`next.config.ts`](next.config.ts) must be passed as **string paths**, never function references (Turbopack can't serialize functions across the loader boundary).
 7. **Be honest about data.** The feed is session-scoped with only capped buffers — there is **no historical persistence**. Label anything modeled/approximate/session-scoped as such; never imply multi-day history.
 8. **Generated files are not hand-edited.** `content/docs/**` and `lib/docs/*` are produced by `pnpm docs:sync`. Change the source in the ops repo and re-sync.
 9. **Verify before declaring done:** `pnpm lint && pnpm build` must be clean.
+10. **Keep the spec in sync (mandatory).** Whenever a change introduces or alters a rule, constraint, command, dependency, route, or behavior that a [`.spec/`](.spec/) file or this `CLAUDE.md` describes, you **must** update the affected spec file(s) **and** this file in the *same* change — never let code and spec drift. Run the Spec Maintenance & Synchronization Protocol below (and [`.spec/workflows/spec-sync.md`](.spec/workflows/spec-sync.md)); if the impact is ambiguous, stop and emit a Context Gap Report instead of guessing.
 
 ---
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNotify } from "@/providers/NotifyProvider";
 import { isValidDiscordWebhook } from "@/lib/notify/discord";
 import { MinSeverity } from "@/lib/notify/types";
@@ -18,6 +18,49 @@ export default function NotifyMenu() {
   const urlEntered = config.webhookUrl.trim().length > 0;
   const armed = config.enabled && urlValid;
 
+  // Playful nudge: gently wiggle the bell on an interval until the visitor has
+  // opened the menu once (remembered in localStorage), inviting them to
+  // subscribe. Stops on first open; honors prefers-reduced-motion via CSS.
+  const [nudge, setNudge] = useState(false);
+  const [wiggle, setWiggle] = useState(false);
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      try {
+        setNudge(localStorage.getItem("mn-notify-seen") !== "1");
+      } catch {
+        setNudge(false);
+      }
+    });
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  useEffect(() => {
+    if (!nudge || open) return;
+    let t: ReturnType<typeof setTimeout>;
+    const id = setInterval(() => {
+      setWiggle(true);
+      t = setTimeout(() => setWiggle(false), 900);
+    }, 9000);
+    return () => {
+      clearInterval(id);
+      clearTimeout(t);
+    };
+  }, [nudge, open]);
+
+  function toggleMenu() {
+    setOpen((o) => !o);
+    if (nudge) {
+      setNudge(false);
+      setWiggle(false);
+      try {
+        localStorage.setItem("mn-notify-seen", "1");
+      } catch {
+        /* storage unavailable — nudge just won't persist */
+      }
+    }
+  }
+
   async function onTest() {
     setTesting(true);
     try {
@@ -30,24 +73,34 @@ export default function NotifyMenu() {
   return (
     <div className="relative">
       <button
-        onClick={() => setOpen((o) => !o)}
-        title="Discord alerts"
-        aria-label="Discord alerts"
+        onClick={toggleMenu}
+        title="Notifications"
+        aria-label="Notifications"
         className="relative p-1.5 rounded-lg hover:bg-mn-surface-2 text-mn-muted hover:text-mn-text transition-colors"
       >
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+        <svg
+          className={`w-4 h-4 ${wiggle ? "bell-wiggle" : ""}`}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
             d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 00-4-5.7V5a2 2 0 10-4 0v.3A6 6 0 006 11v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
           />
         </svg>
-        {armed && (
+        {armed ? (
           <span
             className={`absolute top-1 right-1 w-1.5 h-1.5 rounded-full ${
               lastDelivery && !lastDelivery.ok ? "bg-mn-p1" : "bg-mn-ok"
             }`}
           />
+        ) : (
+          nudge && (
+            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-mn-accent-2 animate-pulse" />
+          )
         )}
       </button>
 
@@ -55,11 +108,41 @@ export default function NotifyMenu() {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-full mt-2 w-80 bg-mn-surface border border-mn-border rounded-xl shadow-xl z-50 p-4 flex flex-col gap-4">
+            {/* Official broadcast comms — anyone can subscribe via Notifi. */}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-semibold text-mn-muted uppercase tracking-widest">
+                Official Announcements
+              </span>
+              <a
+                href="https://midnight.notifi.network/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-3 rounded-lg border border-mn-border bg-mn-surface-2 px-3 py-2.5 hover:border-mn-accent transition-colors group"
+              >
+                <svg className="w-4 h-4 mt-0.5 shrink-0 text-mn-accent-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 11l18-5v12L3 14v-3z M11.6 16.8a3 3 0 11-5.8-1.6" />
+                </svg>
+                <span className="min-w-0">
+                  <span className="flex items-center gap-1 text-sm font-medium text-mn-text">
+                    Subscribe to operations updates
+                    <svg className="w-3 h-3 text-mn-muted group-hover:text-mn-text transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </span>
+                  <span className="block text-[11px] text-mn-muted leading-snug mt-0.5">
+                    Midnight Network Operations announcements &amp; alerts via Notifi — Discord, Email, SMS, or Telegram.
+                  </span>
+                </span>
+              </a>
+            </div>
+
+            <div className="border-t border-mn-border" />
+
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-semibold text-mn-text">Discord Alerts</h3>
                 <p className="text-[11px] text-mn-muted mt-0.5">
-                  Push degradation and consensus failures to a channel
+                  Push this dashboard&apos;s degradation/consensus alerts to your own channel
                 </p>
               </div>
               <button
