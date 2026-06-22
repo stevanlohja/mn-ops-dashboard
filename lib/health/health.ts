@@ -23,15 +23,34 @@ export function worstSeverity(a: Severity, b: Severity): Severity {
   return rank[a] >= rank[b] ? a : b;
 }
 
-// Thresholds (mainnet, 13 FNOs):
-//   < 9 validators  = below GRANDPA 2/3 threshold → finality at risk
-//   < 11 validators = 3+ FNOs offline → reduced resilience
-const VALIDATOR_CRITICAL = 9;
-const VALIDATOR_WARNING = 11;
 const BLOCKTIME_WARNING_MS = 10_000;
 const BLOCKTIME_CRITICAL_MS = 30_000;
 const FINALITY_GAP_WARNING = 4;
 const FINALITY_GAP_CRITICAL = 7;
+
+/**
+ * GRANDPA finalizes with more than 2/3 of an equal-weight validator set voting,
+ * so the minimum online count that still finalizes on an N-validator network is
+ * floor(2N/3)+1 (the fault-tolerance table in the consensus doc).
+ */
+function finalityFloor(expected: number): number {
+  return Math.floor((2 * expected) / 3) + 1;
+}
+
+/**
+ * Validator-count severity, network-aware. The set is federated by design, so we
+ * only flag when the online count approaches the finality floor — a healthy set
+ * with spare margin (e.g. 13/13, or 10 of a 13-set) is NOT "reduced resilience".
+ * Networks with no fixed federated set (expectedValidators: null) are not
+ * count-judged here; a genuine stall still surfaces via the finality-gap check.
+ */
+function validatorSeverity(online: number, expected: number | null): Severity {
+  if (expected == null) return "ok";
+  const floor = finalityFloor(expected);
+  if (online < floor) return "critical"; // below GRANDPA 2/3 → finality at risk
+  if (online === floor) return "warning"; // exactly at the floor → one fault from a stall
+  return "ok";
+}
 
 export function evaluateHealth(
   nodes: NodeState[],
@@ -42,9 +61,7 @@ export function evaluateHealth(
   const fnoNodes = nodes.filter((n) => n.isFno);
   const onlineCount = fnoNodes.length;
 
-  let validatorCount: Severity = "ok";
-  if (onlineCount < VALIDATOR_CRITICAL) validatorCount = "critical";
-  else if (onlineCount < VALIDATOR_WARNING) validatorCount = "warning";
+  const validatorCount = validatorSeverity(onlineCount, cfg.expectedValidators);
 
   const avgMs = summary?.avgBlockTime ?? null;
   let blockTime: Severity = "ok";
@@ -94,18 +111,19 @@ export function buildAlerts(
   const total = cfg.expectedValidators;
   const onlineCount = fnoNodes.length;
 
-  if (onlineCount < VALIDATOR_CRITICAL) {
+  const vSev = validatorSeverity(onlineCount, total);
+  if (vSev === "critical") {
     alerts.push({
       id: "validators-critical",
       severity: "critical",
-      message: `Only ${onlineCount}${total ? `/${total}` : ""} ${vLabel} online — finality at risk`,
+      message: `Only ${onlineCount}${total ? `/${total}` : ""} ${vLabel} online — below GRANDPA 2/3, finality at risk`,
       runbook: "runbook-04-outage",
     });
-  } else if (onlineCount < VALIDATOR_WARNING) {
+  } else if (vSev === "warning") {
     alerts.push({
       id: "validators-warning",
       severity: "warning",
-      message: `${onlineCount}${total ? `/${total}` : ""} ${vLabel} online — reduced resilience`,
+      message: `${onlineCount}${total ? `/${total}` : ""} ${vLabel} online — at the finality floor`,
       runbook: "runbook-04-outage",
     });
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import { ExecutiveMetrics, SLA, formatUsd } from "@/lib/executive/metrics";
+import { NETWORKS } from "@/lib/telemetry/networks";
 
 interface Slide {
   label: string;
@@ -12,7 +13,7 @@ interface Slide {
 /** Build the rotating set of headline slides from the live metrics. */
 function buildSlides(m: ExecutiveMetrics): Slide[] {
   const avail = m.availability;
-  const conc = m.concentration;
+  const net = NETWORKS[m.network];
   const topClientPct = Math.round(m.dominantVersionShare * 100);
 
   return [
@@ -26,11 +27,9 @@ function buildSlides(m: ExecutiveMetrics): Slide[] {
       accent: avail.meetsSla == null ? "text-mn-text" : avail.meetsSla ? "text-mn-ok" : "text-mn-p1",
     },
     {
-      label: "Decentralization",
-      value: conc.nakamoto != null ? `Nakamoto ${conc.nakamoto}` : "Gathering data",
-      sub: conc.judged
-        ? `Top producer ${(conc.topShare * 100).toFixed(0)}% of blocks`
-        : "Awaiting authorship rounds",
+      label: "Network Model",
+      value: net.model,
+      sub: net.modelNote,
       accent: "text-mn-accent-2",
     },
     {
@@ -40,10 +39,10 @@ function buildSlides(m: ExecutiveMetrics): Slide[] {
       accent: "text-mn-text",
     },
     {
-      label: "Client Concentration",
+      label: "Client Versions",
       value: topClientPct > 0 ? `${topClientPct}%` : "—",
-      sub: m.dominantVersionShare > 0.5 ? "Monoculture risk · top client" : "Healthy client diversity",
-      accent: m.dominantVersionShare > 0.5 ? "text-mn-p3" : "text-mn-ok",
+      sub: "Share on the most common node version",
+      accent: "text-mn-text",
     },
     {
       label: "Operating Footprint",

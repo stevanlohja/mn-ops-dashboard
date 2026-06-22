@@ -25,10 +25,9 @@ const WS_LABEL: Record<WsStatus, { dot: string; label: string }> = {
 };
 
 export default function BoardMode() {
-  const { nodes, summary, wsStatus, network, attestation, totalAttributed, recentBlocks } =
-    useTelemetry();
+  const { nodes, summary, wsStatus, network, attestation, recentBlocks } = useTelemetry();
 
-  const m = buildExecutiveMetrics(nodes, summary, attestation, totalAttributed, network);
+  const m = buildExecutiveMetrics(nodes, summary, attestation, network);
   const alerts = buildAlerts(nodes, summary, network);
   const markers = toGlobeMarkers(nodes);
   const resilienceTrend = useMetricTrend(m.resilienceScore);

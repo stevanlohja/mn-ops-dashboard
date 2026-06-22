@@ -47,55 +47,6 @@ function distribution(values: string[], fallback = "Unknown"): Share[] {
     .sort((a, b) => b.count - a.count);
 }
 
-/** Herfindahl–Hirschman style effective count: 1 / Σ(shareᵢ²). */
-function effectiveCount(shares: number[]): number | null {
-  const sumSq = shares.reduce((a, s) => a + s * s, 0);
-  return sumSq > 0 ? 1 / sumSq : null;
-}
-
-// ── Authorship concentration (decentralization) ─────────────────────────────
-
-export interface Concentration {
-  /** Min validators producing > 50% of attributed blocks. Null until enough data. */
-  nakamoto: number | null;
-  /** Largest single-validator authorship share, 0..1. */
-  topShare: number;
-  /** 1/HHI — effective number of equally-weighted producers. */
-  effectiveValidators: number | null;
-  totalAttributed: number;
-  judged: boolean;
-}
-
-/** Authorship is judged once we've seen at least 2 rounds per online validator. */
-function concentration(records: AttestationRecord[], onlineValidators: number, totalAttributed: number): Concentration {
-  const counts = records
-    .filter((r) => r.isFno && r.blocksAuthored > 0)
-    .map((r) => r.blocksAuthored)
-    .sort((a, b) => b - a);
-
-  const judged = totalAttributed >= Math.max(4, onlineValidators * 2) && counts.length > 0;
-  if (!judged) {
-    return { nakamoto: null, topShare: 0, effectiveValidators: null, totalAttributed, judged: false };
-  }
-
-  const total = counts.reduce((a, c) => a + c, 0) || 1;
-  let cumulative = 0;
-  let nakamoto = 0;
-  for (const c of counts) {
-    cumulative += c;
-    nakamoto += 1;
-    if (cumulative / total > 0.5) break;
-  }
-
-  return {
-    nakamoto,
-    topShare: counts[0] / total,
-    effectiveValidators: effectiveCount(counts.map((c) => c / total)),
-    totalAttributed,
-    judged: true,
-  };
-}
-
 // ── Availability (vs SLA) ───────────────────────────────────────────────────
 
 export interface Availability {
@@ -160,7 +111,7 @@ function economics(onlineValidators: number): Economics {
 
 // ── Domain RAG rollup ───────────────────────────────────────────────────────
 
-export type DomainKey = "availability" | "finality" | "decentralization" | "performance";
+export type DomainKey = "availability" | "finality" | "performance";
 
 export interface DomainStatus {
   key: DomainKey;
@@ -178,7 +129,6 @@ export interface ExecutiveMetrics {
   domains: DomainStatus[];
 
   availability: Availability;
-  concentration: Concentration;
   stability: Stability;
   economics: Economics;
 
@@ -187,7 +137,7 @@ export interface ExecutiveMetrics {
   osDist: Share[];
   archDist: Share[];
 
-  /** Largest single validator-client version share, 0..1 (monoculture risk). */
+  /** Largest single validator client-version share, 0..1 (software-diversity signal). */
   dominantVersionShare: number;
   distinctLocations: number;
 
@@ -205,7 +155,6 @@ export function buildExecutiveMetrics(
   nodes: NodeState[],
   summary: NetworkSummary | null,
   records: AttestationRecord[],
-  totalAttributed: number,
   network: NetworkId
 ): ExecutiveMetrics {
   const cfg = NETWORKS[network];
@@ -214,7 +163,6 @@ export function buildExecutiveMetrics(
   const health = evaluateHealth(nodes, summary, network);
 
   const avail = availability(onlineValidators, cfg.expectedValidators);
-  const conc = concentration(records, onlineValidators, totalAttributed);
   const stab = stability(records);
   const econ = economics(onlineValidators);
 
@@ -229,17 +177,6 @@ export function buildExecutiveMetrics(
     summary && summary.bestBlock > 0 && summary.finalizedBlock > 0
       ? summary.bestBlock - summary.finalizedBlock
       : null;
-
-  // ── Decentralization severity: concentration + client monoculture ─────────
-  let decentralization: Severity = "ok";
-  if (conc.judged) {
-    if (conc.nakamoto !== null && conc.nakamoto <= 2) decentralization = "critical";
-    else if (conc.nakamoto !== null && conc.nakamoto <= Math.ceil(onlineValidators / 3)) {
-      decentralization = "warning";
-    }
-  }
-  if (dominantVersionShare > 0.66) decentralization = worstSeverity(decentralization, "critical");
-  else if (dominantVersionShare > 0.5) decentralization = worstSeverity(decentralization, "warning");
 
   const domains: DomainStatus[] = [
     {
@@ -258,14 +195,6 @@ export function buildExecutiveMetrics(
       headline: finalityGap !== null ? `${finalityGap}-block finality gap` : "Awaiting finality data",
     },
     {
-      key: "decentralization",
-      label: "Decentralization",
-      severity: decentralization,
-      headline: conc.judged
-        ? `Nakamoto ${conc.nakamoto} · top client ${(dominantVersionShare * 100).toFixed(0)}%`
-        : `${distinctLocations} locations · top client ${(dominantVersionShare * 100).toFixed(0)}%`,
-    },
-    {
       key: "performance",
       label: "Performance",
       severity: health.blockTime,
@@ -277,15 +206,15 @@ export function buildExecutiveMetrics(
   const overall = domains.reduce<Severity>((a, d) => worstSeverity(a, d.severity), "ok");
 
   // ── Composite resilience score (transparent, weighted) ────────────────────
+  // Resilience reflects operational health for a federated set: staying online,
+  // finalizing, and stable. Network decentralization is intentionally not scored
+  // here — the set is federated by design at this stage.
   const sevScore: Record<Severity, number> = { ok: 100, warning: 65, critical: 25 };
   const availScore = avail.pct ?? sevScore[health.validatorCount];
   const finalityScore = sevScore[worstSeverity(health.finalityGap, health.blockTime)];
-  const decentScore = conc.judged
-    ? clamp(((conc.nakamoto ?? 1) / Math.max(1, onlineValidators / 3)) * 100) * (1 - Math.max(0, dominantVersionShare - 0.5))
-    : sevScore[decentralization];
   const stabScore = clamp(100 - stab.totalDisconnects * 5 - stab.flappingNodes * 10);
   const resilienceScore = Math.round(
-    availScore * 0.35 + finalityScore * 0.25 + decentScore * 0.25 + stabScore * 0.15
+    availScore * 0.45 + finalityScore * 0.35 + stabScore * 0.2
   );
 
   return {
@@ -294,7 +223,6 @@ export function buildExecutiveMetrics(
     overall,
     domains,
     availability: avail,
-    concentration: conc,
     stability: stab,
     economics: econ,
     versionDist,

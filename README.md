@@ -49,7 +49,7 @@ Two trigger levels:
 | Level | Fires on |
 |-------|----------|
 | **Consensus failures only** (default) | Validators below GRANDPA 2/3 (< 9), finality gap ≥ 7 blocks, avg block time > 30s, validator isolated (0 peers) |
-| **Degradation + consensus failures** | Also < 11 validators, low peer counts, block time > 10s, finality gap ≥ 4 |
+| **Degradation + consensus failures** | Also validators at the finality floor, low peer counts, block time > 10s, finality gap ≥ 4 |
 
 Delivery behavior (edge-triggered, in `lib/notify/engine.ts`):
 
@@ -141,9 +141,9 @@ Key design decisions vs v0.1:
 
 | Check | Warning | Critical |
 |-------|---------|----------|
-| FNO validators online (mainnet, 13 expected) | < 11 | < 9 (below GRANDPA 2/3 — finality at risk) |
+| Validators online (network-aware; finality floor = `floor(2N/3)+1`, e.g. 9 of 13) | at the floor (one fault from a stall, e.g. 9/13) | below the floor (below GRANDPA 2/3 — finality at risk, e.g. < 9/13) |
 | Finality gap | ≥ 4 blocks | ≥ 7 blocks |
 | Avg block time | > 10s | > 30s |
 | Validator peers (mainnet, 17 expected) | below target | 0 (isolated) |
 
-Alerts deep-link to the matching runbook under `/runbooks`.
+The validator-count check is **network-aware**: it derives from each network's expected federated set in `lib/telemetry/networks.ts` and the GRANDPA 2/3 finality floor — so a healthy federated set with spare margin (e.g. 13/13 or 10/13) is not flagged "reduced resilience." Networks with no fixed set (testnets, `expectedValidators: null`) are not count-judged; a genuine stall still surfaces via the finality-gap check. Alerts deep-link to the matching runbook under `/runbooks`.

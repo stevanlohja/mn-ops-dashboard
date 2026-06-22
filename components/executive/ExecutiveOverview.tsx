@@ -19,8 +19,8 @@ import Sparkline from "./Sparkline";
 import { useMetricTrend } from "./useMetricTrend";
 
 export default function ExecutiveOverview() {
-  const { nodes, summary, wsStatus, network, attestation, totalAttributed } = useTelemetry();
-  const m = buildExecutiveMetrics(nodes, summary, attestation, totalAttributed, network);
+  const { nodes, summary, wsStatus, network, attestation } = useTelemetry();
+  const m = buildExecutiveMetrics(nodes, summary, attestation, network);
 
   const resilienceTrend = useMetricTrend(m.resilienceScore);
   const availTrend = useMetricTrend(m.availability.pct);
@@ -62,6 +62,10 @@ export default function ExecutiveOverview() {
           {m.domains.map((d) => (
             <DomainCard key={d.key} domain={d} />
           ))}
+          <NetworkModelCard
+            model={NETWORKS[network].model}
+            note={NETWORKS[network].modelNote}
+          />
         </div>
       </div>
 
@@ -103,15 +107,6 @@ export default function ExecutiveOverview() {
             trend={availTrend}
           />
           <Kpi
-            label="Nakamoto Coefficient"
-            value={m.concentration.nakamoto != null ? `${m.concentration.nakamoto}` : "—"}
-            sub={
-              m.concentration.judged
-                ? `Top producer ${(m.concentration.topShare * 100).toFixed(0)}% of blocks`
-                : "Gathering authorship data"
-            }
-          />
-          <Kpi
             label="Operating Cost"
             value={formatUsd(m.economics.monthlyUsd)}
             sub={`per month · ${formatUsd(m.economics.annualUsd)}/yr · modeled estimate`}
@@ -124,8 +119,7 @@ export default function ExecutiveOverview() {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         <DistributionPanel
           title="Client Versions"
-          note={m.dominantVersionShare > 0.5 ? "Monoculture risk" : "Diverse"}
-          noteWarn={m.dominantVersionShare > 0.5}
+          note={`Top ${(m.dominantVersionShare * 100).toFixed(0)}%`}
           shares={m.versionDist}
         />
         <DistributionPanel title="Geography" shares={m.cityDist} />
@@ -150,9 +144,10 @@ export default function ExecutiveOverview() {
       </div>
 
       <p className="text-[11px] text-mn-muted leading-relaxed border-t border-mn-border pt-4">
-        Availability, decentralization, finality and stability are derived from live telemetry.
-        Trends reflect movement since this view was opened (no historical store). Operating cost is a
-        modeled estimate from a configured per-validator assumption, not billed spend.
+        Availability, finality, and stability are derived from live telemetry. The network model is
+        federated by design at this stage, so decentralization is not scored. Trends reflect movement
+        since this view was opened (no historical store). Operating cost is a modeled estimate from a
+        configured per-validator assumption, not billed spend.
       </p>
     </div>
   );
@@ -200,6 +195,21 @@ function DomainCard({ domain }: { domain: DomainStatus }) {
       </div>
       <p className="text-xs text-mn-muted leading-snug">{domain.headline}</p>
       <span className={`text-[11px] font-semibold uppercase tracking-wider ${rag.text}`}>{rag.label}</span>
+    </div>
+  );
+}
+
+// Informational, not a RAG health domain: states the network's intended
+// operating model so the federated-by-design posture reads as deliberate.
+function NetworkModelCard({ model, note }: { model: string; note: string }) {
+  return (
+    <div className="bg-mn-surface border border-mn-accent-2/30 rounded-2xl p-4 flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-mn-text">Network Model</span>
+        <span className="w-2.5 h-2.5 rounded-full bg-mn-accent-2" />
+      </div>
+      <p className="text-sm font-semibold text-mn-text leading-snug">{model}</p>
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-mn-accent-2">{note}</span>
     </div>
   );
 }

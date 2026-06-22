@@ -28,7 +28,7 @@ _Implemented in:_ `components/dashboard/*`, `lib/health/health.ts`.
 - [x] `buildAlerts()` derives alerts purely from nodes + summary + network.
 - [x] Each alert shows severity (ok/warning/critical) and message.
 - [x] Alerts deep-link to `/runbooks/<slug>` where one exists.
-- [x] Thresholds match the documented operational table (mainnet: <11 warn, <9 critical validators; finality gap ≥4/≥7; block time >10s/>30s; peers below target / 0).
+- [x] Validator-count severity is network-aware: derived from each network's expected set and the GRANDPA 2/3 finality floor (`floor(2N/3)+1`) — warning at the floor, critical below it; networks with no fixed set are not count-judged. Finality gap ≥4/≥7; block time >10s/>30s; peers below target / 0.
 
 ## Story 1.3 — Per-node tables with detail
 
