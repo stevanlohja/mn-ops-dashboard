@@ -21,6 +21,7 @@ const PRIMARY_LINKS = [
 // Reference surfaces — grouped under a single "Resources" dropdown to keep the
 // nav row uncluttered.
 const RESOURCE_LINKS = [
+  { href: "/network-change", label: "Network Change" },
   { href: "/diagnostic", label: "Diagnose" },
   { href: "/runbooks", label: "Runbooks" },
   { href: "/docs", label: "Docs" },

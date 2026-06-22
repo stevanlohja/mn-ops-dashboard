@@ -12,6 +12,7 @@ import {
   DomainStatus,
 } from "@/lib/executive/metrics";
 import { toGlobeMarkers } from "@/lib/executive/markers";
+import NetworkChangeThumbnail from "@/components/changes/NetworkChangeThumbnail";
 import PageHeader from "@/components/ui/PageHeader";
 import ConnectionBadge from "@/components/dashboard/ConnectionBadge";
 import ValidatorGlobe from "./ValidatorGlobe";
@@ -112,6 +113,7 @@ export default function ExecutiveOverview() {
             sub={`per month · ${formatUsd(m.economics.annualUsd)}/yr · modeled estimate`}
             severityText="text-mn-text"
           />
+          <NetworkChangeThumbnail />
         </div>
       </div>
 

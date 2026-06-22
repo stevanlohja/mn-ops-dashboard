@@ -15,6 +15,7 @@ Single list of capability areas: what's shipped (the contract the app must keep 
 - [x] **Executive overview** (`/executive`) — resilience score (availability/finality/stability — decentralization is intentionally **not** scored), RAG domains, a **Network Model** card stating the federated-by-design posture per environment, validator globe (real continents, d3-geo), distribution panels, reliability strip; "Present" link to board.
 - [x] **Board mode** (`/board`) — full-screen kiosk: resilience gauge, globe, rotating KPI spotlight, block/alert tickers; wake-lock, fullscreen, idle-cursor; nav chrome suppressed.
 - [x] **Theming** — dark/light on the Midnight palette via `mn-*` CSS-variable tokens.
+- [x] **Network Change** (`/network-change`, Resources dropdown) — *experimental*, read-only status board of coordinated changes (Cardano/Midnight HFs, node releases, host migrations) per environment (Preview/Preprod/Mainnet), with type tag, on-track flag, and links. Manually-maintained seed data in `lib/changes/` (not live telemetry); model mirrors a future ops-repo change record. A compact thumbnail of in-flight changes also appears on the executive overview, linking through.
 - [x] **Configurable telemetry endpoints** (nav settings gear) — user-editable ordered feed-URL list (primary + fallbacks), persisted in `localStorage`, with automatic failover when a provider is unreachable and reset-to-default. Logic in `lib/telemetry/endpoints.ts` + `TelemetryProvider`.
 
 ## 💡 Candidate / not committed
