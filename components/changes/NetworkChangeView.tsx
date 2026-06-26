@@ -11,6 +11,7 @@ import {
 } from "@/lib/changes/types";
 import PageHeader from "@/components/ui/PageHeader";
 import { Pill } from "@/components/ui/Badge";
+import ReadinessGauge from "./ReadinessGauge";
 
 // Promotion order, left → right.
 const ENV_ORDER: NetworkId[] = ["preview", "preprod", "mainnet"];
@@ -62,6 +63,25 @@ function ChangeCard({ change }: { change: NetworkChange }) {
         <h2 className="text-base font-semibold text-mn-text">{change.title}</h2>
         <p className="text-xs text-mn-muted leading-relaxed">{change.summary}</p>
       </div>
+
+      {change.readiness && (
+        <div className="rounded-xl border border-mn-border bg-mn-bg p-4">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-mn-muted mb-2.5">
+            Live rollout readiness
+          </p>
+          <ReadinessGauge change={change} />
+          <p className="text-[10px] text-mn-muted leading-snug mt-2.5">
+            {change.readiness.thresholdNote}
+          </p>
+        </div>
+      )}
+
+      {change.external && (
+        <div className="rounded-xl border border-mn-p3/30 bg-mn-p3/5 p-3 flex items-start gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-mn-p3 mt-1.5 shrink-0" />
+          <p className="text-[11px] text-mn-text-2 leading-snug">{change.external.reason}</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {ENV_ORDER.map((env) => (

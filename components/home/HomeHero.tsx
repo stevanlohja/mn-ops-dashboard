@@ -6,6 +6,7 @@ import { useTelemetry } from "@/providers/TelemetryProvider";
 import { NETWORKS } from "@/lib/telemetry/networks";
 import { formatBlockNumber, formatBlockTime } from "@/lib/format";
 import BlockPropagation, { BlockPulse } from "./BlockPropagation";
+import CoordinationBanner from "@/components/changes/CoordinationBanner";
 
 const MAX_RING_NODES = 24;
 
@@ -76,6 +77,9 @@ export default function HomeHero() {
         <HeroStat label="Block Time" value={formatBlockTime(summary?.avgBlockTime ?? null)} />
         <HeroStat label="Located Nodes" value={`${nodes.filter((n) => n.latitude != null).length}`} />
       </div>
+
+      {/* ── Coordination banner: in-flight network changes ───────────────── */}
+      <CoordinationBanner />
 
       {/* ── CTAs ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-center gap-3 mt-8">

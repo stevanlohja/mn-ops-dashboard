@@ -27,6 +27,34 @@ export interface EnvState {
   note?: string;
 }
 
+/**
+ * A telemetry-derived readiness signal: how much of an environment's validator
+ * set is already running the target version. Computed LIVE from the reported
+ * node versions (see lib/changes/readiness.ts) — not hand-entered. Only the
+ * environment that matches the currently-selected network can be measured, since
+ * the feed is scoped to one network at a time.
+ */
+export interface ReadinessSpec {
+  /** Environment whose validator set this tracks (live only when it is the selected network). */
+  env: NetworkId;
+  /** Target client version operators must reach. "Ready" = reported version ≥ this (leading semver). */
+  targetVersion: string;
+  /** Readiness % that triggers the governance action (e.g. 100 = the full set must be ready). */
+  thresholdPct: number;
+  /** What crossing the threshold does, in operator-safe wording. */
+  thresholdNote: string;
+}
+
+/**
+ * A change whose status comes from OUTSIDE Midnight telemetry (e.g. a Cardano
+ * partner-chain dependency). There is no live signal to derive, so it is tracked
+ * by hand — the reason is surfaced so the absence of a % reads as deliberate.
+ */
+export interface ExternalDependency {
+  /** Short reason there is no Midnight telemetry signal for this change. */
+  reason: string;
+}
+
 export interface NetworkChange {
   id: string;
   title: string;
@@ -37,6 +65,10 @@ export interface NetworkChange {
   /** Overall "tracking as planned" flag for an in-flight change. */
   onTrack?: boolean;
   envs: Record<NetworkId, EnvState>;
+  /** Live, telemetry-derived rollout readiness (e.g. governance-gated runtime upgrade). */
+  readiness?: ReadinessSpec;
+  /** Marks a change whose status is tracked outside Midnight telemetry. */
+  external?: ExternalDependency;
   links?: { label: string; url: string }[];
   /** Date this record was last hand-updated (it is not live telemetry). */
   updated: string;
