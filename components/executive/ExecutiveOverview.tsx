@@ -8,7 +8,6 @@ import {
   SEVERITY_RAG,
   SLA,
   Share,
-  formatUsd,
   DomainStatus,
 } from "@/lib/executive/metrics";
 import { toGlobeMarkers } from "@/lib/executive/markers";
@@ -107,24 +106,19 @@ export default function ExecutiveOverview() {
             }
             trend={availTrend}
           />
-          <Kpi
-            label="Operating Cost"
-            value={formatUsd(m.economics.monthlyUsd)}
-            sub={`per month · ${formatUsd(m.economics.annualUsd)}/yr · modeled estimate`}
-            severityText="text-mn-text"
-          />
           <NetworkChangeThumbnail />
         </div>
       </div>
 
       {/* ── Distribution panels ──────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         <DistributionPanel
           title="Client Versions"
           note={`Top ${(m.dominantVersionShare * 100).toFixed(0)}%`}
           shares={m.versionDist}
         />
-        <DistributionPanel title="Geography" shares={m.cityDist} />
+        <DistributionPanel title="Geographic Zone" shares={m.zoneDist} limit={6} collapseToOther />
+        <InfraProviderPanel />
         <DistributionPanel title="Operating System" shares={m.osDist} />
         <DistributionPanel title="CPU Architecture" shares={m.archDist} />
       </div>
@@ -146,10 +140,10 @@ export default function ExecutiveOverview() {
       </div>
 
       <p className="text-[11px] text-mn-muted leading-relaxed border-t border-mn-border pt-4">
-        Availability, finality, and stability are derived from live telemetry. The network model is
-        federated by design at this stage, so decentralization is not scored. Trends reflect movement
-        since this view was opened (no historical store). Operating cost is a modeled estimate from a
-        configured per-validator assumption, not billed spend.
+        Network Resilience is a weighted composite of availability (45%), finality and security (35%),
+        and session stability (20%), all derived from live telemetry. The network model is federated by
+        design at this stage, so decentralization is not scored. Trends reflect movement since this view
+        was opened (no historical store). Infrastructure provider data is not yet collected from the feed.
       </p>
     </div>
   );
@@ -168,7 +162,10 @@ function ResilienceCard({
 }) {
   const rag = SEVERITY_RAG[overall];
   return (
-    <div className="bg-mn-surface border border-mn-border rounded-2xl p-5 flex flex-col justify-between">
+    <div
+      className="bg-mn-surface border border-mn-border rounded-2xl p-5 flex flex-col justify-between"
+      title="Weighted composite (0–100): availability 45%, finality & security 35%, session stability 20%. Decentralization is intentionally not scored — the validator set is federated by design at this stage."
+    >
       <div className="flex items-center justify-between">
         <span className="text-xs text-mn-muted uppercase tracking-wider">Network Resilience</span>
         <span className={`flex items-center gap-1.5 text-xs font-semibold ${rag.text}`}>
@@ -250,13 +247,28 @@ function DistributionPanel({
   shares,
   note,
   noteWarn,
+  collapseToOther = false,
+  limit = 5,
 }: {
   title: string;
   shares: Share[];
   note?: string;
   noteWarn?: boolean;
+  // When set, the tail beyond `limit` is folded into a single "Other" bucket
+  // so the displayed shares always sum to 100%.
+  collapseToOther?: boolean;
+  // Max named rows shown before the tail is dropped (or collapsed to "Other").
+  limit?: number;
 }) {
-  const top = shares.slice(0, 5);
+  let top = shares.slice(0, limit);
+  if (collapseToOther && shares.length > top.length) {
+    const shown = top.reduce((a, s) => a + s.share, 0);
+    const count = shares.slice(top.length).reduce((a, s) => a + s.count, 0);
+    top = [
+      ...top,
+      { key: "__other__", label: "Other", count, share: Math.max(0, 1 - shown) },
+    ];
+  }
   return (
     <div className="bg-mn-surface border border-mn-border rounded-2xl p-4 flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -284,6 +296,37 @@ function DistributionPanel({
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// Infrastructure provider (GCP / AWS / Other) is not yet exposed by the
+// telemetry feed, so this panel is a labelled placeholder until that data
+// lands. Kept visually consistent with the live distribution panels.
+function InfraProviderPanel() {
+  const providers = ["GCP", "AWS", "Other"];
+  return (
+    <div className="bg-mn-surface border border-mn-border rounded-2xl p-4 flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium text-mn-text">Infrastructure Provider</h3>
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-mn-accent-2">
+          Coming soon
+        </span>
+      </div>
+      <div className="flex flex-col gap-2">
+        {providers.map((p) => (
+          <div key={p} className="flex flex-col gap-1 opacity-50">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-mn-text-2 truncate mr-2 font-mono">{p}</span>
+              <span className="text-mn-muted shrink-0">—</span>
+            </div>
+            <div className="h-1.5 bg-mn-surface-2 rounded-full overflow-hidden" />
+          </div>
+        ))}
+      </div>
+      <p className="text-[11px] text-mn-muted leading-snug">
+        Not yet collected from the telemetry feed.
+      </p>
     </div>
   );
 }

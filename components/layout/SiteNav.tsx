@@ -8,14 +8,16 @@ import { NETWORKS, NETWORK_IDS, NetworkId, TELEMETRY_WEB_URL } from "@/lib/telem
 import { BASE_PATH } from "@/lib/basePath";
 import ThemeToggle from "./ThemeToggle";
 import SettingsMenu from "./SettingsMenu";
+import TourLauncher from "./TourLauncher";
 import NotifyMenu from "@/components/notify/NotifyMenu";
 
-// Live monitoring views — always visible in the nav.
+// Live monitoring views — always visible in the nav. `tour` is the product-tour
+// anchor id (see lib/tour/steps.ts).
 const PRIMARY_LINKS = [
-  { href: "/executive", label: "Overview" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/attestation", label: "Attestation" },
-  { href: "/reports", label: "Reports" },
+  { href: "/executive", label: "Overview", tour: "overview" },
+  { href: "/dashboard", label: "Dashboard", tour: "dashboard" },
+  { href: "/attestation", label: "Attestation", tour: "attestation" },
+  { href: "/reports", label: "Reports", tour: "reports" },
 ];
 
 // Reference surfaces — grouped under a single "Resources" dropdown to keep the
@@ -50,7 +52,9 @@ export default function SiteNav() {
               </span>
             </Link>
 
-            <NetworkSwitcher network={network} setNetwork={setNetwork} />
+            <span data-tour="network" className="inline-flex shrink-0">
+              <NetworkSwitcher network={network} setNetwork={setNetwork} />
+            </span>
 
             <div className="flex items-center gap-0.5 min-w-0">
               {/* Primary links scroll horizontally if they ever overflow; the
@@ -58,12 +62,19 @@ export default function SiteNav() {
                   panel is never clipped by overflow-x. */}
               <div className="flex items-center gap-0.5 overflow-x-auto">
                 {PRIMARY_LINKS.map((l) => (
-                  <NavLink key={l.href} href={l.href} active={pathname.startsWith(l.href)}>
+                  <NavLink
+                    key={l.href}
+                    href={l.href}
+                    active={pathname.startsWith(l.href)}
+                    dataTour={l.tour}
+                  >
                     {l.label}
                   </NavLink>
                 ))}
               </div>
-              <ResourcesMenu pathname={pathname} />
+              <span data-tour="resources" className="inline-flex">
+                <ResourcesMenu pathname={pathname} />
+              </span>
             </div>
           </div>
 
@@ -84,9 +95,16 @@ export default function SiteNav() {
                 />
               </svg>
             </a>
-            <SettingsMenu />
-            <NotifyMenu />
-            <ThemeToggle />
+            <TourLauncher />
+            <span data-tour="settings" className="inline-flex">
+              <SettingsMenu />
+            </span>
+            <span data-tour="notify" className="inline-flex">
+              <NotifyMenu />
+            </span>
+            <span data-tour="theme" className="inline-flex">
+              <ThemeToggle />
+            </span>
           </div>
         </div>
       </div>
@@ -166,14 +184,17 @@ function NavLink({
   href,
   active,
   children,
+  dataTour,
 }: {
   href: string;
   active: boolean;
   children: React.ReactNode;
+  dataTour?: string;
 }) {
   return (
     <Link
       href={href}
+      data-tour={dataTour}
       className={`px-3 py-1.5 text-sm rounded-full transition-colors whitespace-nowrap ${
         active
           ? "text-mn-text bg-mn-surface-2"

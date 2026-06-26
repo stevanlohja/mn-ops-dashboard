@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Outfit, DM_Mono } from "next/font/google";
 import SiteNav from "@/components/layout/SiteNav";
+import TourOverlay from "@/components/tour/TourOverlay";
 import { TelemetryProvider } from "@/providers/TelemetryProvider";
 import { NotifyProvider } from "@/providers/NotifyProvider";
 import { ThemeProvider, THEME_INIT_SCRIPT } from "@/providers/ThemeProvider";
+import { TourProvider } from "@/providers/TourProvider";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -44,8 +46,11 @@ export default function RootLayout({
         <ThemeProvider>
           <TelemetryProvider>
             <NotifyProvider>
-              <SiteNav />
-              <main className="flex-1">{children}</main>
+              <TourProvider>
+                <SiteNav />
+                <main className="flex-1">{children}</main>
+                <TourOverlay />
+              </TourProvider>
             </NotifyProvider>
           </TelemetryProvider>
         </ThemeProvider>

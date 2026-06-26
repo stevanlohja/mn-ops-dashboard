@@ -6,20 +6,11 @@ import { evaluateHealth, Severity, worstSeverity } from "@/lib/health/health";
 /**
  * Executive-suite rollups. Every metric here is derived from live telemetry
  * (nodes + attestation records) except the explicitly-labelled planning
- * assumptions in COST_MODEL / SLA — there is no cost, rewards, or historical
- * persistence feed, so those are operator-supplied estimates, not facts.
+ * assumption in SLA — there is no rewards or historical persistence feed, so
+ * that target is an operator-supplied figure, not a fact.
  *
  * Pure functions, no React, unit-testable.
  */
-
-// ── Operator-supplied planning assumptions (NOT telemetry) ──────────────────
-// Edit these to match real contracted figures. They are surfaced in the UI
-// with a "modeled" label so they are never mistaken for billed spend.
-export const COST_MODEL = {
-  /** Fully-loaded infra + ops estimate per validator per month, USD. */
-  monthlyUsdPerValidator: 850,
-  currency: "USD",
-};
 
 export const SLA = {
   /** Contracted validator-set availability target. */
@@ -33,6 +24,24 @@ export interface Share<T = string> {
   label: string;
   count: number;
   share: number; // 0..1
+}
+
+/**
+ * Bucket a validator's coordinates into a coarse continental zone. Derived from
+ * lat/lng (not the city string, which is unreliable) so the Geography panel can
+ * roll up to "Europe", "Americas", etc. Boundaries are approximate — adequate
+ * for a continent-level rollup, not for border cases. Returns "Unknown" when the
+ * node has not been geolocated by the feed.
+ */
+export function geoZone(lat: number | null, lng: number | null): string {
+  if (lat == null || lng == null) return "Unknown";
+  if (lng >= -170 && lng < -25) return "Americas";
+  if (lng >= 110 && lat < 0) return "Oceania";
+  if (lng >= -25 && lng < 40 && lat >= 36) return "Europe";
+  if (lng >= -25 && lng < 52 && lat < 36) return "Africa";
+  if (lng >= 40 && lng < 63 && lat >= 12 && lat < 42) return "Middle East";
+  if (lng >= 40) return "Asia";
+  return "Other";
 }
 
 function distribution(values: string[], fallback = "Unknown"): Share[] {
@@ -88,27 +97,6 @@ function stability(records: AttestationRecord[]): Stability {
   };
 }
 
-// ── Economics (modeled, not billed) ─────────────────────────────────────────
-
-export interface Economics {
-  monthlyUsd: number;
-  annualUsd: number;
-  perValidatorUsd: number;
-  validators: number;
-  modeled: true;
-}
-
-function economics(onlineValidators: number): Economics {
-  const monthlyUsd = onlineValidators * COST_MODEL.monthlyUsdPerValidator;
-  return {
-    monthlyUsd,
-    annualUsd: monthlyUsd * 12,
-    perValidatorUsd: COST_MODEL.monthlyUsdPerValidator,
-    validators: onlineValidators,
-    modeled: true,
-  };
-}
-
 // ── Domain RAG rollup ───────────────────────────────────────────────────────
 
 export type DomainKey = "availability" | "finality" | "performance";
@@ -130,10 +118,10 @@ export interface ExecutiveMetrics {
 
   availability: Availability;
   stability: Stability;
-  economics: Economics;
 
   versionDist: Share[];
   cityDist: Share[];
+  zoneDist: Share[];
   osDist: Share[];
   archDist: Share[];
 
@@ -164,10 +152,10 @@ export function buildExecutiveMetrics(
 
   const avail = availability(onlineValidators, cfg.expectedValidators);
   const stab = stability(records);
-  const econ = economics(onlineValidators);
 
   const versionDist = distribution(fnoNodes.map((n) => n.version));
   const cityDist = distribution(fnoNodes.map((n) => n.city));
+  const zoneDist = distribution(fnoNodes.map((n) => geoZone(n.latitude, n.longitude)));
   const osDist = distribution(fnoNodes.map((n) => n.os));
   const archDist = distribution(fnoNodes.map((n) => n.cpuArch));
   const dominantVersionShare = versionDist[0]?.share ?? 0;
@@ -224,9 +212,9 @@ export function buildExecutiveMetrics(
     domains,
     availability: avail,
     stability: stab,
-    economics: econ,
     versionDist,
     cityDist,
+    zoneDist,
     osDist,
     archDist,
     dominantVersionShare,
@@ -243,9 +231,3 @@ export const SEVERITY_RAG: Record<Severity, { dot: string; text: string; ring: s
   warning: { dot: "bg-mn-p3", text: "text-mn-p3", ring: "border-mn-p3/30", label: "Watch" },
   critical: { dot: "bg-mn-p1", text: "text-mn-p1", ring: "border-mn-p1/30", label: "Action" },
 };
-
-export function formatUsd(n: number): string {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}k`;
-  return `$${n.toFixed(0)}`;
-}

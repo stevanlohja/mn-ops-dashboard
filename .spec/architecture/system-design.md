@@ -29,6 +29,7 @@ content/     MDX content (runbooks, vendored docs). Rendered, not logic.
 - `TelemetryProvider` — owns the WebSocket lifecycle (connect, resubscribe per network, backoff, teardown) and dispatches parsed event batches into the reducer. Exposes `useTelemetry()`.
 - `NotifyProvider` — the alert watcher → Discord webhook delivery (mounted in the root layout so it runs on every page).
 - `ThemeProvider` — dark/light state, `localStorage` persistence, OS sync, pre-paint init script.
+- `TourProvider` — first-visit product tour: step index + active state, with a `localStorage` "seen" flag so it auto-opens once. Steps are pure data in `lib/tour/steps.ts`; `TourOverlay` spotlights `data-tour` anchors in the nav and is replayable via the nav "?" button (`TourLauncher`).
 
 ## Data flow
 

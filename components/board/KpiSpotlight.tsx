@@ -1,6 +1,6 @@
 "use client";
 
-import { ExecutiveMetrics, SLA, formatUsd } from "@/lib/executive/metrics";
+import { ExecutiveMetrics, SLA } from "@/lib/executive/metrics";
 import { NETWORKS } from "@/lib/telemetry/networks";
 
 interface Slide {
@@ -47,7 +47,7 @@ function buildSlides(m: ExecutiveMetrics): Slide[] {
     {
       label: "Operating Footprint",
       value: `${m.distinctLocations} regions`,
-      sub: `${m.totalValidators} validators · ${formatUsd(m.economics.monthlyUsd)}/mo modeled`,
+      sub: `${m.totalValidators} validators online`,
       accent: "text-mn-text",
     },
   ];

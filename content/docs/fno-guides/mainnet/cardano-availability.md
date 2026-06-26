@@ -70,9 +70,9 @@ Mithril provides verified snapshots of the Cardano blockchain. Using Mithril red
 2. Download and install the Mithril signer, client, and aggregator:
 
     ```bash
-    curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/input-output-hk/mithril/refs/heads/main/mithril-install.sh | sh -s -- -c mithril-signer -d unstable -p $(pwd)
-    curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/input-output-hk/mithril/refs/heads/main/mithril-install.sh | sh -s -- -c mithril-client -d unstable -p $(pwd)
-    curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/input-output-hk/mithril/refs/heads/main/mithril-install.sh | sh -s -- -c mithril-aggregator -d unstable -p $(pwd)
+    curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/input-output-hk/mithril/refs/heads/main/mithril-install.sh | sh -s -- -c mithril-signer -d latest -p $(pwd)
+    curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/input-output-hk/mithril/refs/heads/main/mithril-install.sh | sh -s -- -c mithril-client -d latest -p $(pwd)
+    curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/input-output-hk/mithril/refs/heads/main/mithril-install.sh | sh -s -- -c mithril-aggregator -d latest -p $(pwd)
     ```
 
 ### 1.2 Configure environment variables
@@ -124,7 +124,7 @@ This section uses the official pre-compiled binaries. If you prefer to build fro
 2. Download and extract the binaries (Version 10.6.2):
 
     ```bash
-    VERSION="10.6.2"
+    VERSION="11.0.1"
     ARCH="linux-amd64"
     URL="https://github.com/IntersectMBO/cardano-node/releases/download/${VERSION}/cardano-node-${VERSION}-${ARCH}.tar.gz"
 
@@ -136,6 +136,9 @@ This section uses the official pre-compiled binaries. If you prefer to build fro
 3. Verify the installation:
 
     ```bash
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+    source ~/.bashrc
+
     cardano-node --version
     ```
 
@@ -147,6 +150,34 @@ Create a directory to store the blockchain data and move the Mithril snapshot in
 mkdir ~/cardano-data
 mv ~/tmp/mithril/db/ ~/cardano-data/
 ```
+
+# seeing the snapshot worked on test start
+
+cardano-node run \
+    --topology $HOME/.local/share/mainnet/topology.json \
+    --database-path /mnt/disks/cardano-data/db \
+    --socket-path /mnt/disks/cardano-data/db/node.socket \
+    --host-addr 0.0.0.0 \
+    --port 3001 \
+    --config $HOME/.local/share/mainnet/config.json
+
+[2026-06-23 16:31:47.0806Z][cardano-mainnet-db-sync:ChainDB.ImmDbEvent.ChunkValidation.StartedValidatingChunk](Info,5) Validating chunk no. 8824 out of 8824. Progress: 99.99%
+[2026-06-23 16:31:47.2798Z][cardano-mainnet-db-sync:ChainDB.ImmDbEvent.ChunkValidation.ValidatedChunk](Info,5) Validated chunk no. 8824 out of 8824. Progress: 100.00%
+
+# 1. Map the socket to your shell environment
+export CARDANO_NODE_SOCKET_PATH="/mnt/disks/cardano-data/db/node.socket"
+
+# 2. Run the simple query
+cardano-cli query tip --mainnet
+{
+    "block": 13586523,
+    "epoch": 638,
+    "era": "Conway",
+    "hash": "071d91cde3c559dc526a73c54030671178f28d524e6c99b8ad3d81e97fabf138",
+    "slot": 190640961,
+    "slotInEpoch": 388161,
+    "slotsToEpochEnd": 43839,
+    "syncProgress": "99.99"
 
 ### 2.3 Configure the systemd service
 
@@ -204,6 +235,8 @@ sudo apt update && sudo apt -y install postgresql-17 postgresql-server-dev-17
 
 Log in as the `postgres` user to create your database and application user:
 
+sudo -u postgres psql
+
 ```sql
 CREATE USER midnight WITH PASSWORD 'your_secure_password';
 ALTER ROLE midnight WITH SUPERUSER CREATEDB;
@@ -248,8 +281,8 @@ Update the following values:
     ```bash
     NETWORK="mainnet"
     mkdir -p ~/tmp && cd ~/tmp
-    curl -L -O https://github.com/IntersectMBO/cardano-db-sync/releases/download/13.6.0.7/cardano-db-sync-13.6.0.7-linux.tar.gz
-    tar -xzf cardano-db-sync-13.6.0.7-linux.tar.gz
+    curl -L -O https://github.com/IntersectMBO/cardano-db-sync/releases/download/13.7.1.0/cardano-db-sync-13.7.1.0-linux.tar.gz
+    tar -xzf cardano-db-sync-13.7.1.0-linux.tar.gz
     ```
 
 2. Install binaries and schema:
@@ -271,6 +304,8 @@ Update the following values:
 ### 4.2 Restore from a database snapshot
 
 Syncing from genesis can take several days. Use a [trusted snapshot](https://update-cardano-mainnet.iohk.io/cardano-db-sync/index.html) to accelerate the process.
+
+https://update-cardano-mainnet.iohk.io/cardano-db-sync/13.7/db-sync-snapshot-schema-13.7-block-13567432-x86_64.tgz
 
 1. Download and extract the snapshot:
 
