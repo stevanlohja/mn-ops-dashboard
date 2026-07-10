@@ -37,6 +37,8 @@ The app is a Next.js App Router project with no server-side state — it deploys
 | `/diagnostic` | Guided incident diagnostic tree (carried over from v0.1). |
 | `/runbooks` | Runbook index + rendered runbook pages (wired up in 2.0 — these were dead stubs in v0.1). |
 | `/docs` | Operator documentation mirrored from the `midnight-network-ops` MkDocs site (FNO guides, architecture, processes, ADRs, FAQ), rendered natively in the dashboard theme. See [Documentation](#documentation). |
+| `/network-change` | *Experimental*, manually-maintained status board of coordinated changes (Cardano/Midnight HFs, node releases, host migrations) as they roll Preview → Preprod → Mainnet, with live telemetry-derived rollout readiness where measurable. |
+| `/roadmap` | *Experimental* planning calendar. A month grid renders multi-day windows as highlighted spanning bars, with an Agenda list view; events are the Network-Change board projected automatically plus a hand-editable events file. Manually maintained, forward-looking — not telemetry. |
 
 Theme toggle (dark/light) lives in the nav. Dark is the brand default; the choice persists in `localStorage` and respects the OS preference until you choose explicitly.
 
@@ -107,7 +109,7 @@ po_dash_2.0/
 ├── app/                        # Routes only — no logic
 │   ├── layout.tsx              # Fonts, providers, nav, theme-init script
 │   ├── globals.css             # Theme tokens (dark/light CSS variables)
-│   ├── dashboard/ attestation/ reports/ diagnostic/ runbooks/[slug]/
+│   ├── dashboard/ attestation/ reports/ network-change/ roadmap/ diagnostic/ runbooks/[slug]/
 ├── lib/                        # Pure domain logic (framework-free)
 │   ├── telemetry/              # types, feed parser, network configs, node classifier
 │   ├── state/                  # telemetry-reducer.ts — single pure state transition
@@ -115,6 +117,8 @@ po_dash_2.0/
 │   ├── health/                 # severity evaluation + alert building
 │   ├── notify/                 # Discord alert engine (edge-trigger/dedup) + webhook payloads
 │   ├── reports/                # report model build + md/txt/json/csv renderers
+│   ├── changes/                # coordinated-change status model + seed data + readiness
+│   ├── roadmap/                # calendar date math, event model, change projection, lane layout
 │   ├── runbooks/ diagnostic/   # manifest/loader, diagnostic tree data
 │   └── format.ts               # shared display formatters
 ├── providers/
@@ -125,7 +129,7 @@ po_dash_2.0/
 │   ├── ui/                     # Badge, Stat, PageHeader primitives
 │   ├── layout/                 # SiteNav, ThemeToggle
 │   ├── notify/                 # NotifyMenu (bell icon webhook settings)
-│   ├── dashboard/ attestation/ reports/ runbooks/ diagnostic/
+│   ├── dashboard/ attestation/ reports/ changes/ roadmap/ runbooks/ diagnostic/
 └── content/runbooks/           # Runbook markdown (rendered via MDX)
 ```
 

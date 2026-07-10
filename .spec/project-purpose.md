@@ -28,6 +28,7 @@ Mainnet, Preprod, Preview — switchable in the nav. Thresholds (expected valida
 - Discord webhook alerting (browser → webhook, edge-triggered).
 - Incident diagnostic tree + rendered FNO runbooks + vendored ops docs.
 - Executive overview and full-screen Board (kiosk) mode.
+- Coordinated-change status board (`/network-change`) and a forward-looking roadmap calendar (`/roadmap`) — manually-maintained, clearly-labeled planning views (not telemetry history), with the change board projected onto the calendar automatically.
 - Dark/light theming on the Midnight brand palette.
 
 ## OUT of scope (guardrails against creep)

@@ -22,6 +22,8 @@ content/     MDX content (runbooks, vendored docs). Rendered, not logic.
 - `reports/` — report model build + md/txt/json/csv renderers.
 - `runbooks/`, `docs/` — manifest + static import registries for MDX.
 - `executive/` — `metrics.ts` (executive rollups), `markers.ts` (globe markers).
+- `changes/` — coordinated-change status model + curated seed data (`data.ts`), telemetry-derived rollout readiness (`readiness.ts`), active-change selector.
+- `roadmap/` — planning-calendar domain: timezone-safe UTC date math (`date.ts`), event types + `mn-*` style maps (`types.ts`), Network-Change projection (`derive.ts`), hand-authored events (`events.ts`), merge/sort/default-month (`select.ts`), and the month-grid + Gantt-style lane packing for multi-day spanning bars (`layout.ts`).
 - `format.ts` — shared display formatters.
 
 ### `providers/`
@@ -55,7 +57,7 @@ wss telemetry feed
 
 ## Routes (`app/`)
 
-`/` (home) · `/executive` · `/dashboard` · `/attestation` · `/reports` · `/diagnostic` · `/runbooks` + `/runbooks/[slug]` · `/docs` + `/docs/[...slug]` · `/board` (full-screen kiosk; nav chrome suppressed).
+`/` (home) · `/executive` · `/dashboard` · `/attestation` · `/reports` · `/network-change` · `/roadmap` · `/diagnostic` · `/runbooks` + `/runbooks/[slug]` · `/docs` + `/docs/[...slug]` · `/board` (full-screen kiosk; nav chrome suppressed).
 
 ## 🚫 Banned practices
 

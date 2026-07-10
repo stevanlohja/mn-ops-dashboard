@@ -9,6 +9,7 @@ import {
   ENV_STATUS_LABELS,
   ENV_STATUS_STYLE,
 } from "@/lib/changes/types";
+import Link from "next/link";
 import PageHeader from "@/components/ui/PageHeader";
 import { Pill } from "@/components/ui/Badge";
 import ReadinessGauge from "./ReadinessGauge";
@@ -23,7 +24,12 @@ export default function NetworkChangeView() {
         title="Network Change"
         subtitle="Coordinated change status across environments"
         actions={
-          <Pill className="text-mn-p3 bg-mn-p3/10 border-mn-p3/30">Experimental</Pill>
+          <div className="flex items-center gap-3">
+            <Link href="/roadmap" className="hidden text-[11px] text-mn-accent-2 hover:underline sm:inline">
+              Calendar view →
+            </Link>
+            <Pill className="text-mn-p3 bg-mn-p3/10 border-mn-p3/30">Experimental</Pill>
+          </div>
         }
       />
 

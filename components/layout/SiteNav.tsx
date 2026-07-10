@@ -24,6 +24,7 @@ const PRIMARY_LINKS = [
 // nav row uncluttered.
 const RESOURCE_LINKS = [
   { href: "/network-change", label: "Network Change" },
+  { href: "/roadmap", label: "Roadmap" },
   { href: "/diagnostic", label: "Diagnose" },
   { href: "/runbooks", label: "Runbooks" },
   { href: "/docs", label: "Docs" },
@@ -56,7 +57,8 @@ export default function SiteNav() {
               <NetworkSwitcher network={network} setNetwork={setNetwork} />
             </span>
 
-            <div className="flex items-center gap-0.5 min-w-0">
+            {/* Desktop nav (lg+): inline primary links + Resources dropdown. */}
+            <div className="hidden lg:flex items-center gap-0.5 min-w-0">
               {/* Primary links scroll horizontally if they ever overflow; the
                   Resources dropdown sits outside the scroll container so its
                   panel is never clipped by overflow-x. */}
@@ -75,6 +77,12 @@ export default function SiteNav() {
               <span data-tour="resources" className="inline-flex">
                 <ResourcesMenu pathname={pathname} />
               </span>
+            </div>
+
+            {/* Mobile nav (below lg): all links fold into one menu so the primary
+                links are never crushed into a scroll sliver behind Resources. */}
+            <div className="lg:hidden">
+              <MobileNavMenu pathname={pathname} />
             </div>
           </div>
 
@@ -263,5 +271,91 @@ function ResourcesMenu({ pathname }: { pathname: string }) {
         </>
       )}
     </div>
+  );
+}
+
+// Single hamburger menu for narrow screens (below lg). Folds the primary links
+// and the Resources group into one dropdown so nothing overflows the nav row.
+function MobileNavMenu({ pathname }: { pathname: string }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+        className="flex h-8 w-8 items-center justify-center rounded-full border border-mn-border text-mn-muted transition-colors hover:bg-mn-surface-2 hover:text-mn-text"
+      >
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d={open ? "M6 6l12 12M18 6L6 18" : "M4 7h16M4 12h16M4 17h16"}
+          />
+        </svg>
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div
+            role="menu"
+            className="absolute left-0 top-full z-50 mt-2 flex w-56 flex-col gap-0.5 rounded-xl border border-mn-border bg-mn-surface p-1.5 shadow-xl"
+          >
+            {PRIMARY_LINKS.map((l) => (
+              <MobileNavItem
+                key={l.href}
+                href={l.href}
+                label={l.label}
+                active={pathname.startsWith(l.href)}
+                onNavigate={() => setOpen(false)}
+              />
+            ))}
+            <div className="my-1 border-t border-mn-border" />
+            <span className="px-2.5 pb-0.5 pt-1 text-[10px] font-semibold uppercase tracking-wider text-mn-muted">
+              Resources
+            </span>
+            {RESOURCE_LINKS.map((l) => (
+              <MobileNavItem
+                key={l.href}
+                href={l.href}
+                label={l.label}
+                active={pathname.startsWith(l.href)}
+                onNavigate={() => setOpen(false)}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function MobileNavItem({
+  href,
+  label,
+  active,
+  onNavigate,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+  onNavigate: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      role="menuitem"
+      onClick={onNavigate}
+      className={`rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
+        active
+          ? "bg-mn-surface-2 font-medium text-mn-text"
+          : "text-mn-muted hover:bg-mn-surface-2 hover:text-mn-text"
+      }`}
+    >
+      {label}
+    </Link>
   );
 }
