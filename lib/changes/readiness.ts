@@ -24,6 +24,13 @@ export interface ReadinessResult {
   pct: number | null;
   /** Whether the live readiness has reached the governance threshold. */
   meetsThreshold: boolean;
+  /**
+   * FNO validators NOT yet on the target version, each with the version they are
+   * currently reporting ("unknown" if the feed hasn't surfaced one). Empty when
+   * not live. This is the "who still has to adopt the change" list — trivially
+   * derived for version-keyed changes (node releases / runtime upgrades).
+   */
+  notReady: { name: string; version: string }[];
 }
 
 /** Parse a leading `major.minor.patch` into a comparable tuple, or null. */
@@ -56,14 +63,18 @@ export function computeReadiness(
 
   const live = network === spec.env;
   if (!live) {
-    return { spec, live: false, ready: 0, total: 0, pct: null, meetsThreshold: false };
+    return { spec, live: false, ready: 0, total: 0, pct: null, meetsThreshold: false, notReady: [] };
   }
 
   const fno = nodes.filter((n) => n.isFno);
   const total = fno.length;
   const ready = fno.filter((n) => versionAtLeast(n.version, spec.targetVersion)).length;
+  const notReady = fno
+    .filter((n) => !versionAtLeast(n.version, spec.targetVersion))
+    .map((n) => ({ name: n.name, version: n.version || "unknown" }))
+    .sort((a, b) => a.name.localeCompare(b.name));
   const pct = total > 0 ? (ready / total) * 100 : null;
   const meetsThreshold = pct != null && pct >= spec.thresholdPct;
 
-  return { spec, live, ready, total, pct, meetsThreshold };
+  return { spec, live, ready, total, pct, meetsThreshold, notReady };
 }

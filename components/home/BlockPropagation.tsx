@@ -136,7 +136,10 @@ export default function BlockPropagation({
       const waves = wavesRef.current;
       for (let i = waves.length - 1; i >= 0; i--) {
         const wv = waves[i];
-        const t = (now - wv.start) / wv.travelMs;
+        // Clamp to >= 0: a wave can be pushed after this frame's rAF timestamp
+        // was sampled, making `now - start` momentarily negative, which would
+        // yield a negative arc radius below and throw an IndexSizeError.
+        const t = Math.max(0, (now - wv.start) / wv.travelMs);
         if (t >= 1.15) {
           waves.splice(i, 1);
           continue;
@@ -197,7 +200,7 @@ export default function BlockPropagation({
       });
 
       // Center core
-      const pulse = waves.length ? 1 - Math.min(1, (now - waves[waves.length - 1].start) / 600) : 0;
+      const pulse = waves.length ? 1 - Math.min(1, Math.max(0, now - waves[waves.length - 1].start) / 600) : 0;
       ctx.beginPath();
       ctx.arc(cx, cy, (8 + pulse * 10) * dpr, 0, Math.PI * 2);
       const coreGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, (8 + pulse * 10) * dpr);

@@ -32,7 +32,8 @@ export default function ReadinessGauge({
   const ringColor = r.meetsThreshold ? "text-mn-ok" : "text-mn-accent-2";
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-3">
       <div className="relative shrink-0" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
           <circle
@@ -95,6 +96,33 @@ export default function ReadinessGauge({
           </span>
         )}
       </div>
+      </div>
+
+      {r.live && r.notReady.length > 0 && (
+        <div className="rounded-lg border border-mn-border bg-mn-surface-2/40 px-3 py-2.5">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-mn-muted mb-1.5">
+            Remaining to adopt ≥{r.spec.targetVersion} ({r.notReady.length})
+          </p>
+          <ul className="flex flex-col gap-1">
+            {r.notReady.map((n) => (
+              <li
+                key={n.name}
+                className="flex items-center justify-between gap-3 text-[11px] font-mono"
+              >
+                <span className="text-mn-text-2 truncate" title={n.name}>{n.name}</span>
+                <span className="text-mn-muted shrink-0">{n.version}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {r.live && r.notReady.length === 0 && r.total > 0 && (
+        <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-mn-ok">
+          <span className="w-1.5 h-1.5 rounded-full bg-mn-ok" />
+          All {r.total} validators on ≥{r.spec.targetVersion}
+        </p>
+      )}
     </div>
   );
 }

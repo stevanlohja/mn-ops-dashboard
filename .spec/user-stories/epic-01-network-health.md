@@ -37,7 +37,7 @@ _Implemented in:_ `components/dashboard/*`, `lib/health/health.ts`.
 > **So that** I can inspect a specific node's peers, version, location, and blocks.
 
 **Acceptance criteria**
-- [x] Nodes grouped by type; columns configurable and persisted to `localStorage`.
+- [x] Nodes grouped by type; columns configurable and persisted to `localStorage`. A **Version** column (reported client version) is shown by default alongside peers/blocks/gap.
 - [x] Clicking a row opens a detail drawer (network, blocks, software, system, location, attestation).
 - [x] Peer count and finality gap colored by severity.
 

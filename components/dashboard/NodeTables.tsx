@@ -8,9 +8,10 @@ import NodeDetailDrawer from "./NodeDetailDrawer";
 
 // ── Column configuration ───────────────────────────────────────────────────────
 
-type ColKey = "peers" | "bestBlock" | "finalizedBlock" | "gap" | "txCount" | "bestHash" | "finalizedHash";
+type ColKey = "version" | "peers" | "bestBlock" | "finalizedBlock" | "gap" | "txCount" | "bestHash" | "finalizedHash";
 
 const ALL_COLUMNS: { key: ColKey; label: string }[] = [
+  { key: "version",        label: "Version" },
   { key: "peers",          label: "Peers" },
   { key: "bestBlock",      label: "Best Block" },
   { key: "finalizedBlock", label: "Finalized" },
@@ -20,11 +21,15 @@ const ALL_COLUMNS: { key: ColKey; label: string }[] = [
   { key: "finalizedHash",  label: "Fin. Hash" },
 ];
 
-const DEFAULT_COLS: ColKey[] = ["peers", "bestBlock", "finalizedBlock", "gap"];
+const DEFAULT_COLS: ColKey[] = ["version", "peers", "bestBlock", "finalizedBlock", "gap"];
 const LS_KEY = "mn-node-cols";
 
 function renderCell(key: ColKey, node: NodeState, expectedPeers: number | null) {
   switch (key) {
+    case "version":
+      return node.version
+        ? <span className="text-mn-text-2" title={node.version}>{node.version}</span>
+        : <span className="text-mn-muted">—</span>;
     case "peers": {
       const low = expectedPeers !== null && node.peers < expectedPeers;
       const c = node.peers === 0 ? "text-mn-p1" : low ? "text-mn-p3" : "text-mn-ok";
