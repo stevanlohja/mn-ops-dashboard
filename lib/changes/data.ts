@@ -50,25 +50,25 @@ export const CHANGES: NetworkChange[] = [
     type: "cardano-hf",
     class: "A",
     summary:
-      "Cardano protocol-version 11 upgrade. Midnight is a Cardano partner chain, so each validator's Cardano availability stack (cardano-node 11.0.1+, cardano-db-sync 13.7.1.0 on Mainnet) must upgrade before the fork epoch; the Midnight federated network follows. Preview and Preprod have forked; Mainnet FNO readiness is confirmed with every operator, and the Cardano Mainnet fork is scheduled to enact Sat 18 Jul 2026 21:44:51 UTC.",
+      "Cardano protocol-version 11 upgrade. Midnight is a Cardano partner chain, so each validator's Cardano availability stack (cardano-node 11.0.1+, cardano-db-sync 13.7.1.0 on Mainnet) had to upgrade before the fork epoch; the Midnight federated network followed. Preview, Preprod, and Mainnet have all forked — the Cardano Mainnet fork enacted at the epoch boundary on Sat 18 Jul 2026 21:44:51 UTC with every FNO's Cardano stack confirmed ready.",
     onTrack: true,
     external: {
       reason:
-        "Readiness is on the Cardano side — the fork epoch is set by Cardano, not Midnight. Every FNO's Cardano availability stack (cardano-node 11.0.1, db-sync 13.7.1.0) has been upgraded and individually confirmed for Mainnet; there is no Midnight telemetry signal for this, so it is tracked by hand.",
+        "Readiness was on the Cardano side — the fork epoch is set by Cardano, not Midnight. Every FNO's Cardano availability stack (cardano-node 11.0.1, db-sync 13.7.1.0) was upgraded and individually confirmed for Mainnet ahead of the fork; there was no Midnight telemetry signal for this, so it was tracked by hand.",
     },
     envs: {
       preview: { status: "completed", date: "2026-05-05" },
       preprod: { status: "completed", date: "2026-05" },
       mainnet: {
-        status: "scheduled",
+        status: "completed",
         date: "2026-07-18",
-        note: "FNO Cardano-stack readiness confirmed with every operator (cardano-node 11.0.1, db-sync 13.7.1.0). Cardano Mainnet Van Rossem fork enacts at the epoch boundary on Sat 18 Jul 2026 21:44:51 UTC.",
+        note: "Cardano Mainnet Van Rossem fork enacted at the epoch boundary on Sat 18 Jul 2026 21:44:51 UTC. All FNO Cardano stacks (cardano-node 11.0.1, db-sync 13.7.1.0) confirmed ready pre-fork; Midnight partner chain followed with no disruption.",
       },
     },
     links: [
       { label: "FNO migration runbook", url: `${OPS_REPO}/runbooks/fno/van-rossem-hard-fork-migration.md` },
       { label: "Compatibility matrix", url: `${OPS_REPO}/releases/compatibility-matrix.md` },
     ],
-    updated: "2026-07-15",
+    updated: "2026-07-20",
   },
 ];
