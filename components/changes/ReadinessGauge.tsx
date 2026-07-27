@@ -79,7 +79,7 @@ export default function ReadinessGauge({
           </span>
         )}
         <span className="text-[10px] text-mn-muted">
-          Governance trigger: {r.spec.thresholdPct}% of the {envLabel} set
+          {r.spec.triggerLabel ?? "Governance trigger"}: {r.spec.thresholdPct}% of the {envLabel} set
         </span>
         {r.live && (
           <span

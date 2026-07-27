@@ -12,19 +12,54 @@ const OPS_REPO = "https://github.com/midnightntwrk/midnight-network-ops/blob/mai
  */
 export const CHANGES: NetworkChange[] = [
   {
+    id: "midnight-node-1-0-1",
+    title: "Midnight node 1.0.1",
+    type: "node-release",
+    class: "B",
+    summary:
+      "Non-consensus client patch to node 1.0.1 (version bump only — no spec_version change, no governance action). FNOs update binaries in a rolling window; nodes on 1.0.0 and 1.0.1 interoperate. Preprod is mid-rollout; Mainnet is planned. (Preview 1.0.1 is a separate genesis/chain-spec reset, tracked on the patch board.)",
+    onTrack: true,
+    readiness: {
+      env: "preprod",
+      targetVersion: "1.0.1",
+      thresholdPct: 100,
+      triggerLabel: "Rollout target",
+      thresholdNote:
+        "Rolling binary update, not governance-gated: the target is the full Preprod validator set on node 1.0.1. Nodes on 1.0.0 keep validating meanwhile.",
+    },
+    envs: {
+      preview: {
+        status: "planned",
+        note: "Preview 1.0.1 is a genesis/chain-spec regeneration (Locked tNight pool reset), gated separately on the patch board.",
+      },
+      preprod: {
+        status: "in-progress",
+        note: "Rolling FNO binary update underway; partial adoption across the validator set.",
+      },
+      mainnet: {
+        status: "planned",
+        note: "Not yet started; no validators reporting 1.0.1 on Mainnet.",
+      },
+    },
+    links: [
+      { label: "node 1.0.1 patch note", url: `${OPS_REPO}/releases/patches/node/node-1-0-1.md` },
+      { label: "Compatibility matrix", url: `${OPS_REPO}/releases/compatibility-matrix.md` },
+    ],
+    updated: "2026-07-27",
+  },
+  {
     id: "midnight-node-1-0-0",
     title: "Midnight node 1.0.0",
     type: "midnight-hf",
     class: "A",
     summary:
-      "Governance-gated runtime upgrade to node 1.0.0 (spec_version bump; indexer reset/re-index). Preview and Preprod are complete; Mainnet is the active stage. FNOs upgrade in a coordinated maintenance window, then the runtime upgrade is governance-actioned once the full Mainnet validator set is ready.",
-    onTrack: true,
+      "Governance-gated runtime upgrade to node 1.0.0 (spec_version bump; indexer reset/re-index). Preview, Preprod, and Mainnet are all complete — the Mainnet runtime upgrade was governance-actioned once the full validator set reported 1.0.0.",
     readiness: {
       env: "mainnet",
       targetVersion: "1.0.0",
       thresholdPct: 100,
       thresholdNote:
-        "The governance-actioned runtime upgrade enacts once the full Mainnet validator set reports node 1.0.0.",
+        "The governance-actioned runtime upgrade enacted once the full Mainnet validator set reported node 1.0.0.",
     },
     envs: {
       preview: { status: "completed", date: "2026-05" },
@@ -33,16 +68,16 @@ export const CHANGES: NetworkChange[] = [
         note: "Runtime upgrade complete; full validator set on 1.0.0.",
       },
       mainnet: {
-        status: "in-progress",
+        status: "completed",
         date: "2026-07-20",
-        note: "FNO maintenance window Jul 14–16; governance window Jul 16–17; runtime upgrade enacts Mon Jul 20.",
+        note: "Runtime upgrade enacted Mon Jul 20; full validator set on 1.0.0.",
       },
     },
     links: [
       { label: "midnight-1-1 bundle", url: `${OPS_REPO}/releases/bundles/midnight-1-1/midnight-1-1.md` },
       { label: "Compatibility matrix", url: `${OPS_REPO}/releases/compatibility-matrix.md` },
     ],
-    updated: "2026-07-10",
+    updated: "2026-07-27",
   },
   {
     id: "cardano-van-rossem-hf",

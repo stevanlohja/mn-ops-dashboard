@@ -1,20 +1,36 @@
 import { NodeType } from "./types";
 
 /**
- * Known validator nodes whose names the "validator" substring heuristic misses.
- * Protocol-operated (Shielded) validators use opaque names — e.g. the preprod
- * guarded overlay runs `walleye-marlin`, `grub-unicorn`, etc. alongside the
- * `*-validator` FNO nodes — so without this allowlist they go uncounted.
+ * Node names the "validator" substring heuristic misses, matched as a lowercased
+ * substring. Two distinct cases:
  *
- * Source of truth: the ops overlay configs (`configs/wireguard/<env>/wg0.conf`).
- * Update if a network reset renames the set. Lowercased; matched as a substring
- * so node-name suffixes still resolve.
+ *  1. Protocol-operated (Shielded) overlay codenames. The preprod guarded set
+ *     reports `stl-validator-walleye-marlin`, `stl-validator-grub-unicorn`, etc.
+ *     (these already contain "validator", but the bare codenames are kept for
+ *     resilience against future `--name` changes).
+ *  2. FNO validators whose operator-chosen telemetry `--name` omits "validator"
+ *     entirely. On PREPROD several operators report bare names — `ATON`,
+ *     `moneygram-bcw`, `vodaphone-bcw`, `worldpay-bcw` — even though the SAME
+ *     operators name their mainnet nodes correctly (`sfi-validator-moneygram`).
+ *     Without these entries those 4 preprod validators are miscounted as
+ *     "other", which is why the preprod board read 10 online instead of 14.
+ *
+ * Verified against the live telemetry feed + the ops reserved-nodes roster
+ * (`configs/nodes/preprod/p2p-peers.md`). Entries are kept specific enough not to
+ * over-match mainnet — e.g. `moneygram-bcw` won't hit mainnet's standby
+ * `sfi-tmp-moneygram-1`. Update if a network reset renames the set.
  */
 const KNOWN_VALIDATORS = [
+  // Shielded overlay codenames (preprod guarded set)
   "walleye-marlin",
   "walleye-dodo",
   "grub-unicorn",
   "antelope-possum",
+  // FNO validators whose preprod telemetry name omits "validator"
+  "aton",
+  "moneygram-bcw",
+  "vodaphone-bcw",
+  "worldpay-bcw",
 ];
 
 /**

@@ -39,10 +39,16 @@ export interface ReadinessSpec {
   env: NetworkId;
   /** Target client version operators must reach. "Ready" = reported version ≥ this (leading semver). */
   targetVersion: string;
-  /** Readiness % that triggers the governance action (e.g. 100 = the full set must be ready). */
+  /** Readiness % that triggers the action (e.g. 100 = the full set must be ready). */
   thresholdPct: number;
   /** What crossing the threshold does, in operator-safe wording. */
   thresholdNote: string;
+  /**
+   * Label for the threshold line in the gauge. Defaults to "Governance trigger"
+   * (a governance-gated runtime upgrade). Set to something like "Rollout target"
+   * for a non-consensus rolling binary bump that has no governance action.
+   */
+  triggerLabel?: string;
 }
 
 /**
