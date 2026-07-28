@@ -11,6 +11,11 @@ import { NetworkChange } from "@/lib/changes/types";
  * and counts validators already on the target version. When the change's target
  * env is not the selected network, the feed can't measure it, so we say so
  * rather than imply a number.
+ *
+ * Once the change board marks the target env `completed`, the rollout reads as
+ * complete regardless of the feed — a signed-off change should not fall back to
+ * "—" just because the viewer is on another network. That state is labelled as
+ * board status, never dressed up as a live measurement.
  */
 export default function ReadinessGauge({
   change,
@@ -27,9 +32,11 @@ export default function ReadinessGauge({
   const stroke = 8;
   const radius = (size - stroke) / 2;
   const circ = 2 * Math.PI * radius;
-  const pct = r.pct ?? 0;
+  // A completed env with no live feed draws a full ring from the board status.
+  const pct = r.pct ?? (r.envComplete ? 100 : 0);
   const offset = circ * (1 - pct / 100);
   const ringColor = r.meetsThreshold ? "text-mn-ok" : "text-mn-accent-2";
+  const showRing = r.live || r.envComplete;
 
   return (
     <div className="flex flex-col gap-3">
@@ -45,7 +52,7 @@ export default function ReadinessGauge({
             stroke="currentColor"
             strokeWidth={stroke}
           />
-          {r.live && (
+          {showRing && (
             <circle
               className={`${ringColor} transition-[stroke-dashoffset] duration-700`}
               cx={size / 2}
@@ -62,9 +69,11 @@ export default function ReadinessGauge({
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="font-mono text-lg font-semibold tabular-nums text-mn-text leading-none">
-            {r.live && r.pct != null ? `${Math.round(r.pct)}%` : "—"}
+            {r.live && r.pct != null ? `${Math.round(r.pct)}%` : r.envComplete ? "✓" : "—"}
           </span>
-          <span className="text-[9px] uppercase tracking-wider text-mn-muted mt-0.5">ready</span>
+          <span className="text-[9px] uppercase tracking-wider text-mn-muted mt-0.5">
+            {!r.live && r.envComplete ? "complete" : "ready"}
+          </span>
         </div>
       </div>
 
@@ -72,6 +81,10 @@ export default function ReadinessGauge({
         {r.live ? (
           <span className="text-xs text-mn-text-2 font-mono">
             {r.ready}/{r.total} on ≥{r.spec.targetVersion}
+          </span>
+        ) : r.envComplete ? (
+          <span className="text-xs text-mn-text-2">
+            {envLabel} rollout complete — board status, not a live count
           </span>
         ) : (
           <span className="text-xs text-mn-muted">
@@ -81,7 +94,7 @@ export default function ReadinessGauge({
         <span className="text-[10px] text-mn-muted">
           {r.spec.triggerLabel ?? "Governance trigger"}: {r.spec.thresholdPct}% of the {envLabel} set
         </span>
-        {r.live && (
+        {(r.live || r.envComplete) && (
           <span
             className={`inline-flex items-center gap-1 self-start text-[10px] font-semibold ${
               r.meetsThreshold ? "text-mn-ok" : "text-mn-muted"
@@ -89,10 +102,14 @@ export default function ReadinessGauge({
           >
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                r.meetsThreshold ? "bg-mn-ok animate-pulse" : "bg-mn-muted"
-              }`}
+                r.meetsThreshold ? "bg-mn-ok" : "bg-mn-muted"
+              } ${r.meetsThreshold && !r.envComplete ? "animate-pulse" : ""}`}
             />
-            {r.meetsThreshold ? "Threshold met — upgrade can proceed" : "Awaiting full readiness"}
+            {r.envComplete
+              ? "Rollout complete"
+              : r.meetsThreshold
+                ? "Threshold met — upgrade can proceed"
+                : "Awaiting full readiness"}
           </span>
         )}
       </div>

@@ -6,7 +6,8 @@ import PageHeader from "@/components/ui/PageHeader";
 import { Pill } from "@/components/ui/Badge";
 import { addMonths, formatRange, monthLong, parseDate } from "@/lib/roadmap/date";
 import { toSpans } from "@/lib/roadmap/layout";
-import { allRoadmapEvents, defaultMonth } from "@/lib/roadmap/select";
+import { REPORT_DUE_STANDING_NOTE } from "@/lib/roadmap/reporting";
+import { allRoadmapEvents, defaultMonth, withoutRecurring } from "@/lib/roadmap/select";
 import {
   CATEGORY_LABELS,
   CATEGORY_STYLE,
@@ -24,10 +25,14 @@ import { useToday } from "./useToday";
 const ALL_EVENTS = allRoadmapEvents();
 const ALL_SPANS = toSpans(ALL_EVENTS);
 const START_MONTH = defaultMonth(ALL_EVENTS);
+// The agenda lists one-off items only; standing series (the monthly report
+// deadline) would repeat for years and bury them. They stay on the grid.
+const AGENDA_EVENTS = withoutRecurring(ALL_EVENTS);
 
 // Categories actually present, in a stable display order, for the legend.
 const LEGEND_ORDER: RoadmapCategory[] = [
-  "hard-fork", "runtime-upgrade", "node-release", "governance", "maintenance", "epoch", "milestone", "other",
+  "hard-fork", "runtime-upgrade", "node-release", "governance", "maintenance", "epoch", "milestone",
+  "reporting", "other",
 ];
 
 function envLabel(env: RoadmapEvent["env"]): string | null {
@@ -61,7 +66,8 @@ export default function RoadmapView() {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="max-w-2xl text-[11px] leading-relaxed text-mn-muted">
-          A planning view of hard forks, node releases, runtime upgrades, and maintenance windows. Multi-day
+          A planning view of hard forks, node releases, runtime upgrades, maintenance windows, and the
+          monthly FNO reporting deadline (the 5th of the following month). Multi-day
           windows render as highlighted spanning bars. Manually maintained and forward-looking — not live
           telemetry; dates can move (Cardano-driven fork epochs especially).
         </p>
@@ -91,7 +97,12 @@ export default function RoadmapView() {
           </div>
         </div>
       ) : (
-        <Agenda events={ALL_EVENTS} selectedId={selectedId} onSelect={(e) => setSelectedId(e.id)} />
+        <div className="flex flex-col gap-3">
+          <Agenda events={AGENDA_EVENTS} selectedId={selectedId} onSelect={(e) => setSelectedId(e.id)} />
+          <p className="rounded-xl border border-mn-border bg-mn-surface px-4 py-2.5 text-[11px] leading-relaxed text-mn-muted">
+            {REPORT_DUE_STANDING_NOTE} Each occurrence is on the calendar view.
+          </p>
+        </div>
       )}
 
       {selected && <DetailPanel event={selected} onClose={() => setSelectedId(null)} />}

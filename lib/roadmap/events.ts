@@ -7,15 +7,16 @@ import { RoadmapEvent } from "./types";
  *
  * Coordinated changes tracked on the Network-Change board (lib/changes/data.ts)
  * are projected onto the calendar automatically (see derive.ts), so you do NOT
- * re-enter those here. Use this file for the granular items the change board
- * can't express: maintenance / governance windows, epoch boundaries, community
- * calls, freezes, and similar dated events.
+ * re-enter those here. The monthly FNO report deadline is generated too (see
+ * reporting.ts) — do not hand-list it. Use this file for the granular items the
+ * change board can't express: maintenance / governance windows, epoch
+ * boundaries, community calls, freezes, and similar dated events.
  *
  * FIELD GUIDE
  *   id        unique string
  *   title     short label shown on the calendar bar
  *   category  hard-fork | node-release | runtime-upgrade | governance |
- *             maintenance | epoch | milestone | other   → drives the colour
+ *             maintenance | epoch | milestone | reporting | other → drives the colour
  *   status    done | active | scheduled | planned | at-risk   → drives the style
  *   start     "YYYY-MM-DD" (a day) or "YYYY-MM" (a month marker). "~" prefix = approximate.
  *   end       optional inclusive "YYYY-MM-DD" — its presence makes this a

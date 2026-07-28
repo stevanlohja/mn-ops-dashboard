@@ -11,11 +11,19 @@ import { NetworkChange, ReadinessSpec } from "./types";
  * be MEASURED when the selected network equals the change's target env. When it
  * doesn't, `live` is false and the caller should fall back to the curated env
  * status rather than imply a number.
+ *
+ * The curated board is authoritative for COMPLETION: once the target env is
+ * marked `completed`, the rollout is done whether or not the feed can measure it
+ * right now (the change may have been signed off days ago, or the viewer may be
+ * on another network). `envComplete` carries that, kept separate from the live
+ * counts so the UI can say "complete" without implying a live measurement.
  */
 export interface ReadinessResult {
   spec: ReadinessSpec;
   /** True when the selected network matches the target env, so counts are real telemetry. */
   live: boolean;
+  /** Curated board status for the target env is `completed` — the rollout is signed off. */
+  envComplete: boolean;
   /** FNO validators reporting version ≥ target (0 when not live). */
   ready: number;
   /** FNO validators seen on the target env (0 when not live). */
@@ -61,9 +69,19 @@ export function computeReadiness(
   const spec = change.readiness;
   if (!spec) return null;
 
+  const envComplete = change.envs[spec.env]?.status === "completed";
   const live = network === spec.env;
   if (!live) {
-    return { spec, live: false, ready: 0, total: 0, pct: null, meetsThreshold: false, notReady: [] };
+    return {
+      spec,
+      live: false,
+      envComplete,
+      ready: 0,
+      total: 0,
+      pct: null,
+      meetsThreshold: envComplete,
+      notReady: [],
+    };
   }
 
   const fno = nodes.filter((n) => n.isFno);
@@ -74,7 +92,7 @@ export function computeReadiness(
     .map((n) => ({ name: n.name, version: n.version || "unknown" }))
     .sort((a, b) => a.name.localeCompare(b.name));
   const pct = total > 0 ? (ready / total) * 100 : null;
-  const meetsThreshold = pct != null && pct >= spec.thresholdPct;
+  const meetsThreshold = envComplete || (pct != null && pct >= spec.thresholdPct);
 
-  return { spec, live, ready, total, pct, meetsThreshold, notReady };
+  return { spec, live, envComplete, ready, total, pct, meetsThreshold, notReady };
 }

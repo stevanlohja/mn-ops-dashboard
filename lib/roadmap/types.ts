@@ -2,9 +2,11 @@ import { NetworkId } from "@/lib/telemetry/networks";
 
 /**
  * Roadmap event model (experimental, manually maintained). Pure types — no
- * React. Events come from two places, merged in lib/roadmap/select.ts:
+ * React. Events come from three places, merged in lib/roadmap/select.ts:
  *   1. the Network-Change board, projected automatically (lib/roadmap/derive.ts);
- *   2. hand-authored entries in lib/roadmap/events.ts (the easy-to-edit surface).
+ *   2. hand-authored entries in lib/roadmap/events.ts (the easy-to-edit surface);
+ *   3. generated standing series, e.g. the monthly FNO report deadline
+ *      (lib/roadmap/reporting.ts) — flagged `recurring`.
  */
 
 export type RoadmapCategory =
@@ -15,6 +17,7 @@ export type RoadmapCategory =
   | "maintenance"
   | "epoch"
   | "milestone"
+  | "reporting"
   | "other";
 
 export type RoadmapStatus = "done" | "active" | "scheduled" | "planned" | "at-risk";
@@ -36,6 +39,12 @@ export interface RoadmapEvent {
   link?: { label: string; url: string };
   /** Set when derived from the Network-Change board (see derive.ts). */
   changeId?: string;
+  /**
+   * One occurrence of a generated standing series (see reporting.ts). Drawn on
+   * the calendar grid, but kept out of the agenda list and the default-month
+   * pick so a deadline that repeats forever can't drown the one-off changes.
+   */
+  recurring?: boolean;
 }
 
 export const CATEGORY_LABELS: Record<RoadmapCategory, string> = {
@@ -46,6 +55,7 @@ export const CATEGORY_LABELS: Record<RoadmapCategory, string> = {
   maintenance: "Maintenance",
   epoch: "Epoch",
   milestone: "Milestone",
+  reporting: "Reporting",
   other: "Event",
 };
 
@@ -100,6 +110,10 @@ export const CATEGORY_STYLE: Record<RoadmapCategory, CategoryStyle> = {
   milestone: {
     dot: "bg-mn-accent", text: "text-mn-accent-2", barBg: "bg-mn-accent/15",
     barBgStrong: "bg-mn-accent/25", border: "border-mn-accent/40", spine: "bg-mn-accent",
+  },
+  reporting: {
+    dot: "bg-mn-ok", text: "text-mn-ok", barBg: "bg-mn-ok/10",
+    barBgStrong: "bg-mn-ok/20", border: "border-mn-ok/30", spine: "bg-mn-ok",
   },
   other: {
     dot: "bg-mn-muted", text: "text-mn-muted", barBg: "bg-mn-surface-2",
