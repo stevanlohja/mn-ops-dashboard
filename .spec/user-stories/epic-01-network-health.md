@@ -29,6 +29,7 @@ _Implemented in:_ `components/dashboard/*`, `lib/health/health.ts`.
 - [x] Each alert shows severity (ok/warning/critical) and message.
 - [x] Alerts deep-link to `/runbooks/<slug>` where one exists.
 - [x] Validator-count severity is network-aware: derived from each network's expected set and the GRANDPA 2/3 finality floor (`floor(2N/3)+1`) — warning at the floor, critical below it; networks with no fixed set are not count-judged. Finality gap ≥4/≥7; block time >10s/>30s; peers below target / 0.
+- [x] **Roll-call alerts name the absent node.** Every expected-roster validator (`lib/telemetry/roster.ts`) with nothing in the feed raises its own `warning` alert naming it — a count ("12/13") does not say which node to chase, and a set above the finality floor raises no count alert at all. Warning, not critical, and worded "may be offline": absence from telemetry can be a broken telemetry link rather than a down validator.
 
 ## Story 1.3 — Per-node tables with detail
 
@@ -40,6 +41,7 @@ _Implemented in:_ `components/dashboard/*`, `lib/health/health.ts`.
 - [x] Nodes grouped by type; columns configurable and persisted to `localStorage`. A **Version** column (reported client version) is shown by default alongside peers/blocks/gap.
 - [x] Clicking a row opens a detail drawer (network, blocks, software, system, location, attestation).
 - [x] Peer count and finality gap colored by severity.
+- [x] **The validator table is a roll-call, not just a list.** Where the network has an expected roster (`lib/telemetry/roster.ts` — mainnet's 13), entries with nothing in the feed render as their own rows tagged **not reporting** (red dot, dashes for every metric), so the answer to "which one is down?" is on screen instead of implied by a count. A reporting validator that is *not* on the roster is tagged **unlisted**, which makes roster drift (a rename, a new node) visible rather than silently miscounted. Misses read **waiting for feed** until the feed has been continuously live for 20s (`components/dashboard/useFeedSettled.ts`) — the node list fills in over several seconds after connect, and bootstrap is not an outage. A footnote states that absence from telemetry may be a broken telemetry link rather than a down node.
 
 ---
 

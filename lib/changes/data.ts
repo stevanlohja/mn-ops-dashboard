@@ -17,7 +17,7 @@ export const CHANGES: NetworkChange[] = [
     type: "node-release",
     class: "B",
     summary:
-      "Non-consensus client patch to node 1.0.1 (version bump only — no spec_version change, no governance action). FNOs update binaries in a rolling maintenance window; nodes on 1.0.0 and 1.0.1 interoperate. Preprod completed Mon Jul 27; Mainnet is in its window Tue Jul 28. (Preview 1.0.1 is a separate genesis/chain-spec reset, tracked on the patch board.)",
+      "Non-consensus client patch to node 1.0.1 (version bump only — no spec_version change, no governance action). FNOs updated binaries in a rolling maintenance window; nodes on 1.0.0 and 1.0.1 interoperate. Preprod completed Mon Jul 27; Mainnet completed Tue Jul 28. (Preview 1.0.1 is a separate genesis/chain-spec reset, tracked on the patch board.)",
     onTrack: true,
     readiness: {
       env: "mainnet",
@@ -38,16 +38,16 @@ export const CHANGES: NetworkChange[] = [
         note: "FNO maintenance window Mon Jul 27: rolling binary update complete; full Preprod validator set on 1.0.1.",
       },
       mainnet: {
-        status: "in-progress",
+        status: "completed",
         date: "2026-07-28",
-        note: "FNO maintenance window Tue Jul 28: rolling binary update underway across the Mainnet validator set.",
+        note: "FNO maintenance window Tue Jul 28: rolling binary update complete; full Mainnet validator set on 1.0.1.",
       },
     },
     links: [
       { label: "node 1.0.1 patch note", url: `${OPS_REPO}/releases/patches/node/node-1-0-1.md` },
       { label: "Compatibility matrix", url: `${OPS_REPO}/releases/compatibility-matrix.md` },
     ],
-    updated: "2026-07-28",
+    updated: "2026-07-29",
   },
   {
     id: "midnight-node-1-0-0",

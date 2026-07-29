@@ -1,5 +1,6 @@
 import { NodeState, NetworkSummary } from "@/lib/telemetry/types";
 import { NETWORKS, NetworkId } from "@/lib/telemetry/networks";
+import { rosterStatus } from "@/lib/telemetry/roster";
 
 export type Severity = "ok" | "warning" | "critical";
 
@@ -124,6 +125,21 @@ export function buildAlerts(
       id: "validators-warning",
       severity: "warning",
       message: `${onlineCount}${total ? `/${total}` : ""} ${vLabel} online — at the finality floor`,
+      runbook: "runbook-04-outage",
+    });
+  }
+
+  // Name the roll-call misses. A count alone ("12/13") does not tell an operator
+  // WHICH node to chase, and a set well above the finality floor raises no count
+  // alert at all — so one absent validator would otherwise pass unmentioned.
+  // Warning, not critical: absence from telemetry can be a broken telemetry link
+  // rather than a down validator, and the caller must not assume an outage.
+  const roll = rosterStatus(nodes, network);
+  for (const entry of roll?.missing ?? []) {
+    alerts.push({
+      id: `validator-missing-${entry.name}`,
+      severity: "warning",
+      message: `${entry.name}: on the expected ${cfg.label} set but reporting nothing to telemetry — may be offline`,
       runbook: "runbook-04-outage",
     });
   }

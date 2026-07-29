@@ -1,10 +1,16 @@
+import { MAINNET_VALIDATORS } from "./roster";
+
 export type NetworkId = "mainnet" | "preprod" | "preview";
 
 export interface NetworkConfig {
   id: NetworkId;
   label: string;
   genesis: string;
-  /** Expected FNO validator set size, or null when not fixed (testnets) */
+  /**
+   * Expected FNO validator set size, or null when not fixed (testnets). Derived
+   * from the named roster in roster.ts wherever one exists, so the count and the
+   * roll-call can never disagree.
+   */
   expectedValidators: number | null;
   /** Expected libp2p peer count for a healthy validator, or null to skip peer alerts */
   expectedPeers: number | null;
@@ -23,7 +29,7 @@ export const NETWORKS: Record<NetworkId, NetworkConfig> = {
     label: "Mainnet",
     genesis:
       "0x1941ca8e2bb88146c14dea084d3be7eb6e96ca7135429c543848b628124f2854",
-    expectedValidators: 13,
+    expectedValidators: MAINNET_VALIDATORS.length,
     expectedPeers: 17,
     model: "Federated",
     modelNote: "Guarded overlay · by design",

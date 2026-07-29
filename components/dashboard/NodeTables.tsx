@@ -3,8 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { NodeState } from "@/lib/telemetry/types";
 import { NETWORKS } from "@/lib/telemetry/networks";
+import { RosterEntry, rosterStatus } from "@/lib/telemetry/roster";
 import { useTelemetry } from "@/providers/TelemetryProvider";
 import NodeDetailDrawer from "./NodeDetailDrawer";
+import { useFeedSettled } from "./useFeedSettled";
 
 // ── Column configuration ───────────────────────────────────────────────────────
 
@@ -74,6 +76,9 @@ export default function NodeTables({ nodes }: { nodes: NodeState[] }) {
   const cfg = NETWORKS[network];
   const isMainnet = network === "mainnet";
   const validatorLabel = isMainnet ? "FNO Validators" : "Validators";
+  // Roll-call against the expected roster: which of the set is NOT reporting.
+  const roll = rosterStatus(nodes, network);
+  const settled = useFeedSettled();
 
   // Lazy init from localStorage. Safe against hydration mismatch: the tables
   // only render once live feed data arrives, long after hydration completes.
@@ -183,6 +188,9 @@ export default function NodeTables({ nodes }: { nodes: NodeState[] }) {
           </span>
         }
         nodes={fnoNodes}
+        missing={roll?.missing ?? []}
+        unlistedIds={new Set((roll?.unlisted ?? []).map((n) => n.id))}
+        settled={settled}
         activeCols={activeCols}
         expectedPeers={cfg.expectedPeers}
         defaultOpen
@@ -241,6 +249,9 @@ function NodeSection({
   label,
   badge,
   nodes,
+  missing = [],
+  unlistedIds,
+  settled = true,
   activeCols,
   expectedPeers,
   defaultOpen = false,
@@ -251,6 +262,12 @@ function NodeSection({
   label: string;
   badge?: React.ReactNode;
   nodes: NodeState[];
+  /** Expected-roster entries with no node in the feed (see lib/telemetry/roster.ts). */
+  missing?: RosterEntry[];
+  /** Ids of nodes reporting but absent from the roster — the drift guard. */
+  unlistedIds?: Set<number>;
+  /** False while the feed is still filling in, so misses read "waiting", not "down". */
+  settled?: boolean;
   activeCols: { key: ColKey; label: string }[];
   expectedPeers: number | null;
   defaultOpen?: boolean;
@@ -259,7 +276,7 @@ function NodeSection({
   selectedNodeId?: number | null;
 }) {
   const [open, setOpen] = useState(defaultOpen);
-  const hasAlert = nodes.some((n) => n.peers === 0);
+  const hasAlert = nodes.some((n) => n.peers === 0) || (settled && missing.length > 0);
 
   return (
     <div className="bg-mn-surface border border-mn-border rounded-xl overflow-hidden">
@@ -292,7 +309,7 @@ function NodeSection({
       {/* Table */}
       {open && (
         <div className="border-t border-mn-border">
-          {nodes.length === 0 && emptyMessage ? (
+          {nodes.length === 0 && missing.length === 0 && emptyMessage ? (
             <div className="px-4 py-8 text-center">
               <p className="text-mn-muted text-sm">{emptyMessage}</p>
             </div>
@@ -321,14 +338,24 @@ function NodeSection({
                       key={node.id}
                       onClick={() => onSelectNode?.(node.id)}
                       className={`hover:bg-mn-border/20 transition-colors cursor-pointer ${
-                        i < nodes.length - 1 ? "border-b border-mn-border" : ""
+                        i < nodes.length - 1 || missing.length > 0 ? "border-b border-mn-border" : ""
                       } ${selectedNodeId === node.id ? "bg-mn-accent/5" : ""}`}
                     >
                       <td className="px-4 py-3">
                         <span className={`block w-2 h-2 rounded-full ${statusDot(node, expectedPeers)}`} />
                       </td>
                       <td className="px-4 py-3 font-mono text-xs text-mn-text">
-                        {node.name}
+                        <span className="flex items-center gap-2">
+                          {node.name}
+                          {unlistedIds?.has(node.id) && (
+                            <span
+                              className="rounded border border-mn-p3/30 bg-mn-p3/10 px-1.5 py-0.5 text-[9px] font-sans uppercase tracking-wider text-mn-p3"
+                              title="Reporting, but not on the expected roster — a rename or an addition. Update lib/telemetry/roster.ts."
+                            >
+                              unlisted
+                            </span>
+                          )}
+                        </span>
                       </td>
                       {activeCols.map((col) => (
                         <td
@@ -340,8 +367,55 @@ function NodeSection({
                       ))}
                     </tr>
                   ))}
+
+                  {/* Roll-call misses: expected, but nothing in the feed. */}
+                  {missing.map((entry, i) => (
+                    <tr
+                      key={`missing:${entry.name}`}
+                      className={`bg-mn-p1/[0.04] ${i < missing.length - 1 ? "border-b border-mn-border" : ""}`}
+                    >
+                      <td className="px-4 py-3">
+                        <span
+                          className={`block w-2 h-2 rounded-full ${settled ? "bg-mn-p1" : "bg-mn-muted"}`}
+                        />
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs text-mn-muted">
+                        <span className="flex flex-wrap items-center gap-2">
+                          {entry.name}
+                          {settled ? (
+                            <span
+                              className="rounded border border-mn-p1/30 bg-mn-p1/10 px-1.5 py-0.5 text-[9px] font-sans uppercase tracking-wider text-mn-p1"
+                              title="On the expected set, but sending nothing to telemetry. May be a down node or only a broken telemetry link."
+                            >
+                              not reporting
+                            </span>
+                          ) : (
+                            <span className="rounded border border-mn-border px-1.5 py-0.5 text-[9px] font-sans uppercase tracking-wider text-mn-muted">
+                              waiting for feed
+                            </span>
+                          )}
+                        </span>
+                      </td>
+                      {activeCols.map((col) => (
+                        <td
+                          key={col.key}
+                          className="px-4 py-3 font-mono text-xs text-right text-mn-muted tabular-nums"
+                        >
+                          —
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
                 </tbody>
               </table>
+              {settled && missing.length > 0 && (
+                <p className="border-t border-mn-border px-4 py-2.5 text-[11px] leading-relaxed text-mn-muted">
+                  {missing.length === 1 ? "1 node" : `${missing.length} nodes`} on the expected set
+                  {missing.length === 1 ? " is" : " are"} sending nothing to telemetry. That can be a
+                  down validator or only a broken telemetry link — confirm against the node before
+                  treating it as an outage.
+                </p>
+              )}
             </div>
           )}
         </div>

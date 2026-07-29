@@ -1,5 +1,6 @@
 import { NodeState } from "@/lib/telemetry/types";
 import { NetworkId } from "@/lib/telemetry/networks";
+import { rosterStatus } from "@/lib/telemetry/roster";
 import { NetworkChange, ReadinessSpec } from "./types";
 
 /**
@@ -26,7 +27,12 @@ export interface ReadinessResult {
   envComplete: boolean;
   /** FNO validators reporting version ≥ target (0 when not live). */
   ready: number;
-  /** FNO validators seen on the target env (0 when not live). */
+  /**
+   * Denominator: the EXPECTED validator-set size for the target env where a
+   * roster exists (lib/telemetry/roster.ts), else the number seen in the feed.
+   * Using the roster is what stops a validator that has dropped off telemetry
+   * from being silently excluded — the count reads 12/13, not 12/12.
+   */
   total: number;
   /** ready / total * 100, or null when not live or no validators seen yet. */
   pct: number | null;
@@ -34,9 +40,11 @@ export interface ReadinessResult {
   meetsThreshold: boolean;
   /**
    * FNO validators NOT yet on the target version, each with the version they are
-   * currently reporting ("unknown" if the feed hasn't surfaced one). Empty when
-   * not live. This is the "who still has to adopt the change" list — trivially
-   * derived for version-keyed changes (node releases / runtime upgrades).
+   * currently reporting ("unknown" if the feed hasn't surfaced one, "not
+   * reporting" for an expected-roster node absent from the feed entirely). Empty
+   * when not live. This is the "who still has to adopt the change" list —
+   * trivially derived for version-keyed changes (node releases / runtime
+   * upgrades).
    */
   notReady: { name: string; version: string }[];
 }
@@ -85,12 +93,17 @@ export function computeReadiness(
   }
 
   const fno = nodes.filter((n) => n.isFno);
-  const total = fno.length;
+  const roll = rosterStatus(nodes, network);
+  // Expected-set size where the network has a roster, so a validator missing from
+  // the feed still counts against the target instead of vanishing from both sides.
+  const total = roll?.expected ?? fno.length;
   const ready = fno.filter((n) => versionAtLeast(n.version, spec.targetVersion)).length;
-  const notReady = fno
-    .filter((n) => !versionAtLeast(n.version, spec.targetVersion))
-    .map((n) => ({ name: n.name, version: n.version || "unknown" }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const notReady = [
+    ...fno
+      .filter((n) => !versionAtLeast(n.version, spec.targetVersion))
+      .map((n) => ({ name: n.name, version: n.version || "unknown" })),
+    ...(roll?.missing ?? []).map((e) => ({ name: e.name, version: "not reporting" })),
+  ].sort((a, b) => a.name.localeCompare(b.name));
   const pct = total > 0 ? (ready / total) * 100 : null;
   const meetsThreshold = envComplete || (pct != null && pct >= spec.thresholdPct);
 
