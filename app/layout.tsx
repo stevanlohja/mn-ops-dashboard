@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit, DM_Mono } from "next/font/google";
 import SiteNav from "@/components/layout/SiteNav";
+import MaintainerBanner from "@/components/layout/MaintainerBanner";
 import TourOverlay from "@/components/tour/TourOverlay";
 import { TelemetryProvider } from "@/providers/TelemetryProvider";
 import { NotifyProvider } from "@/providers/NotifyProvider";
@@ -47,6 +48,7 @@ export default function RootLayout({
           <TelemetryProvider>
             <NotifyProvider>
               <TourProvider>
+                <MaintainerBanner />
                 <SiteNav />
                 <main className="flex-1">{children}</main>
                 <TourOverlay />
