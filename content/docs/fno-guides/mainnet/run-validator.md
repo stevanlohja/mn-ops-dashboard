@@ -7,8 +7,7 @@ This guide describes how to configure environment variables, perform a test laun
 At this point you have:
 
 1. Fully synced Cardano availability services ([Set Up Cardano Mainnet Availability](/docs/fno-guides/mainnet/cardano-availability)).
-2. Generated and shared your public validator keys with the Midnight Foundation ([Install Midnight Node and Generate Validator Keys](/docs/fno-guides/mainnet/install-node-and-keys)).
-3. Integrated with the guarded overlay network and verified handshakes with peers ([WireGuard Integration](/docs/fno-guides/mainnet/wireguard-integration)).
+2. Generated your validator keys, which stay on your own infrastructure ([Install Midnight Node and Generate Validator Keys](/docs/fno-guides/mainnet/install-node-and-keys)).
 
 :::
 ## 1. Prepare the environment configuration
@@ -78,11 +77,6 @@ CROSS_CHAIN_SEED_FILE='/home/midnight/keystore/6772616...'
 
 Test the node interactively to verify the configuration before moving to a background service.
 
-:::info
-
-The guarded overlay requires peers explicitly defined such as `--reserved-nodes /ip4/100.112.8.220/tcp/30333/ws/p2p/12D3KooWNPSrRuwPGvGE2MM5iR7nxPZ1p6NYwdSRMwMSxf9G9VTV`. You must use the exact peers as written below.
-
-:::
 ### 2.1 Load variables and start the node
 
 1. **Load the environment variables:**
@@ -93,7 +87,7 @@ The guarded overlay requires peers explicitly defined such as `--reserved-nodes 
 
 2. **Launch the node:**
 
-    The following command connects to the mainnet overlay network.
+    The following command connects to the mainnet network.
 
     ```bash
     midnight-node \
@@ -103,32 +97,9 @@ The guarded overlay requires peers explicitly defined such as `--reserved-nodes 
         --validator \
         --pool-limit 35 \
         --name ${NODE_NAME} \
-        --rpc-port 9933 \
-        --reserved-only \
-        --reserved-nodes /ip4/100.112.8.220/tcp/30333/ws/p2p/12D3KooWNPSrRuwPGvGE2MM5iR7nxPZ1p6NYwdSRMwMSxf9G9VTV \
-        --reserved-nodes /ip4/100.112.8.221/tcp/30333/ws/p2p/12D3KooWAAPDN3QLokjY2veVvms4KXqE925iKFxHUZdGw2zxex1h \
-        --reserved-nodes /ip4/100.112.0.220/tcp/30333/ws/p2p/12D3KooWEhzKtv25C6Hv7F9Jr4PjHAz5auJX87FKgGSy1N1QumoM \
-        --reserved-nodes /ip4/100.112.0.221/tcp/30333/ws/p2p/12D3KooWGqTQqUGjGBMwbWTzyC8zKueJGifPta2fi6B2CPmm2sdU \
-        --reserved-nodes /ip4/100.112.8.10/tcp/30333/p2p/12D3KooWHrevk1nR3HQ5zDoUbGNKTyzsT5H9yKRBWqqADxcfc9tz \
-        --reserved-nodes /ip4/100.112.8.100/tcp/30333/p2p/12D3KooWGWobFVMUHiViD8bL7ddu5ChvJpmGWe8Cfu2mTPrpCHwF \
-        --reserved-nodes /ip4/100.112.8.101/tcp/30333/p2p/12D3KooWQs68Cwvp7GTZYUDaCwoXQ6YQH9vRtpdTWzwC4cbwnnX3 \
-        --reserved-nodes /ip4/100.112.8.102/tcp/30333/p2p/12D3KooWGgRkPPoM1AV7iG7yxGDWW8JW2m85XWaEJNNrcUgpTBuD \
-        --reserved-nodes /ip4/100.112.8.103/tcp/30333/p2p/12D3KooWPCa59NHxT97iVWW237haUYt4pYZgKuaNMiMbggMrSHYS \
-        --reserved-nodes /ip4/100.112.8.104/tcp/30333/p2p/12D3KooWAfLfdHCiqTDUGUKiyAPsGLmceXizj6LNYgLBDPJBP5nT \
-        --reserved-nodes /ip4/100.112.8.105/tcp/30333/p2p/12D3KooWRh4f9WxsbeUkxEupvsRorDpmbMTcKJc66jHVoBCY7mKL \
-        --reserved-nodes /ip4/100.112.8.106/tcp/30333/p2p/12D3KooWR538ww4UuWRVJBNiX399nwxEkkwFR9oTVTP7GreVt9hC \
-        --reserved-nodes /ip4/100.112.8.107/tcp/30333/p2p/12D3KooWRJBMMkK9LQKapEGhBkuc2eCo1XWEFZYEqurktGvPxPeB \
-        --reserved-nodes /ip4/100.112.8.200/tcp/30333/ws/p2p/12D3KooWEU4shU3AsHNP6jeqk9NRM8x6r4CeiYW7yasuz6GPRvd2 \
-        --reserved-nodes /ip4/100.112.8.201/tcp/30333/ws/p2p/12D3KooWRm2MHbHwWpbG4ukShVmD4jtD62b1yqv53gdESVF4HpCj \
-        --reserved-nodes /ip4/100.112.0.10/tcp/30333/p2p/12D3KooWHbUx48SH528xJibJsaiaE5LQareVe4zUF85uxvA6tQLd \
-        --reserved-nodes /ip4/100.112.0.200/tcp/30333/ws/p2p/12D3KooWJH3LMyRSFUC6VhM5bsT31PDAiX7HihkvRUpA2VFVMiXg \
-        --reserved-nodes /ip4/100.112.0.201/tcp/30333/ws/p2p/12D3KooWSQ4TMAQ3X26V2T4aubFNKSc2x97LzqT7Wq1jT5jxsp9p \
-        --reserved-nodes /ip4/100.112.8.108/tcp/30333/p2p/12D3KooWLPC5hmMF6YzpthUe1UzQmfNFiF5hVU72ABGUZ24puZ9E \
-        --reserved-nodes /ip4/100.112.8.109/tcp/30333/p2p/12D3KooWL8p86z3LA8JvR1Agb8VfTbYZD1yoTP7dcCqikCqZiQgm \
-        --reserved-nodes /ip4/100.112.8.110/tcp/30333/p2p/12D3KooWDavLZDsAvdD7oDP6izt7U3iMzNXcmEFCzzXDbYSaPCSV
+        --rpc-port 9933
     ```
 
-    *(Note: Additional reserved nodes may be required based on current network topology.)*
 
 ### 2.2 Verify node output
 
@@ -154,7 +125,7 @@ Once the interactive test is successful, configure the node to run as a backgrou
 
 ```toml
 [Unit]
-Description=Midnight Protocol Node (Guarded Overlay FNO)
+Description=Midnight Protocol Node (FNO)
 After=network.target postgresql.service
 Wants=postgresql.service
 
@@ -165,7 +136,6 @@ Type=simple
 WorkingDirectory=/home/midnight
 EnvironmentFile=/home/midnight/.env
 
-# The ExecStart command handles the guarded overlay via --reserved-nodes
 ExecStart=/home/midnight/.local/bin/midnight-node \
     --chain /home/midnight/res/mainnet/chain-spec-raw.json \
     --base-path /home/midnight/data \
@@ -173,29 +143,7 @@ ExecStart=/home/midnight/.local/bin/midnight-node \
     --validator \
     --pool-limit 35 \
     --name ${NODE_NAME} \
-    --rpc-port 9933 \
-    --reserved-only \
-    --reserved-nodes /ip4/100.112.8.220/tcp/30333/ws/p2p/12D3KooWNPSrRuwPGvGE2MM5iR7nxPZ1p6NYwdSRMwMSxf9G9VTV \
-    --reserved-nodes /ip4/100.112.8.221/tcp/30333/ws/p2p/12D3KooWAAPDN3QLokjY2veVvms4KXqE925iKFxHUZdGw2zxex1h \
-    --reserved-nodes /ip4/100.112.0.220/tcp/30333/ws/p2p/12D3KooWEhzKtv25C6Hv7F9Jr4PjHAz5auJX87FKgGSy1N1QumoM \
-    --reserved-nodes /ip4/100.112.0.221/tcp/30333/ws/p2p/12D3KooWGqTQqUGjGBMwbWTzyC8zKueJGifPta2fi6B2CPmm2sdU \
-    --reserved-nodes /ip4/100.112.8.10/tcp/30333/p2p/12D3KooWHrevk1nR3HQ5zDoUbGNKTyzsT5H9yKRBWqqADxcfc9tz \
-    --reserved-nodes /ip4/100.112.8.100/tcp/30333/p2p/12D3KooWGWobFVMUHiViD8bL7ddu5ChvJpmGWe8Cfu2mTPrpCHwF \
-    --reserved-nodes /ip4/100.112.8.101/tcp/30333/p2p/12D3KooWQs68Cwvp7GTZYUDaCwoXQ6YQH9vRtpdTWzwC4cbwnnX3 \
-    --reserved-nodes /ip4/100.112.8.102/tcp/30333/p2p/12D3KooWGgRkPPoM1AV7iG7yxGDWW8JW2m85XWaEJNNrcUgpTBuD \
-    --reserved-nodes /ip4/100.112.8.103/tcp/30333/p2p/12D3KooWPCa59NHxT97iVWW237haUYt4pYZgKuaNMiMbggMrSHYS \
-    --reserved-nodes /ip4/100.112.8.104/tcp/30333/p2p/12D3KooWAfLfdHCiqTDUGUKiyAPsGLmceXizj6LNYgLBDPJBP5nT \
-    --reserved-nodes /ip4/100.112.8.105/tcp/30333/p2p/12D3KooWRh4f9WxsbeUkxEupvsRorDpmbMTcKJc66jHVoBCY7mKL \
-    --reserved-nodes /ip4/100.112.8.106/tcp/30333/p2p/12D3KooWR538ww4UuWRVJBNiX399nwxEkkwFR9oTVTP7GreVt9hC \
-    --reserved-nodes /ip4/100.112.8.107/tcp/30333/p2p/12D3KooWRJBMMkK9LQKapEGhBkuc2eCo1XWEFZYEqurktGvPxPeB \
-    --reserved-nodes /ip4/100.112.8.200/tcp/30333/ws/p2p/12D3KooWEU4shU3AsHNP6jeqk9NRM8x6r4CeiYW7yasuz6GPRvd2 \
-    --reserved-nodes /ip4/100.112.8.201/tcp/30333/ws/p2p/12D3KooWRm2MHbHwWpbG4ukShVmD4jtD62b1yqv53gdESVF4HpCj \
-    --reserved-nodes /ip4/100.112.0.10/tcp/30333/p2p/12D3KooWHbUx48SH528xJibJsaiaE5LQareVe4zUF85uxvA6tQLd \
-    --reserved-nodes /ip4/100.112.0.200/tcp/30333/ws/p2p/12D3KooWJH3LMyRSFUC6VhM5bsT31PDAiX7HihkvRUpA2VFVMiXg \
-    --reserved-nodes /ip4/100.112.0.201/tcp/30333/ws/p2p/12D3KooWSQ4TMAQ3X26V2T4aubFNKSc2x97LzqT7Wq1jT5jxsp9p \
-    --reserved-nodes /ip4/100.112.8.108/tcp/30333/p2p/12D3KooWLPC5hmMF6YzpthUe1UzQmfNFiF5hVU72ABGUZ24puZ9E \
-    --reserved-nodes /ip4/100.112.8.109/tcp/30333/p2p/12D3KooWL8p86z3LA8JvR1Agb8VfTbYZD1yoTP7dcCqikCqZiQgm \
-    --reserved-nodes /ip4/100.112.8.110/tcp/30333/p2p/12D3KooWDavLZDsAvdD7oDP6izt7U3iMzNXcmEFCzzXDbYSaPCSV
+    --rpc-port 9933
 
 Restart=on-failure
 RestartSec=10
@@ -238,7 +186,7 @@ If these lines are missing, your node has no keys loaded and cannot participate 
 
 Validator nodes do not produce blocks immediately. Midnight follows an **n+2 transition cycle**:
 
-1. **Epoch n:** You are added to the whitelist. Your node remains passive.
+1. **Epoch n:** You enter the validator set. Your node remains passive.
 2. **Epoch n+1:** Your node is queued for the next session. Still passive.
 3. **Epoch n+2:** Your node joins the validator set and begins block production.
 

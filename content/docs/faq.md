@@ -44,13 +44,12 @@ Full specs: [Mainnet requirements](/docs/fno-guides/mainnet/requirements) ·
 ### How do I onboard?
 
 Pick **one** environment and follow that track end-to-end — do not mix steps
-between Preprod and Mainnet. Both tracks share five steps:
+between Preprod and Mainnet. Both tracks share four steps:
 
 1. Requirements — provision hardware and OS.
 2. Install Node & Generate Keys — install `midnight-node`, create validator keys.
 3. Cardano Availability — stand up `cardano-node` + `cardano-db-sync` + PostgreSQL.
-4. WireGuard Integration — join the trusted overlay (Mainnet).
-5. Run Validator — launch and confirm block production.
+4. Run Validator — launch and confirm block production.
 
 Start here: [FNO Guides](/docs/fno-guides).
 
@@ -58,11 +57,10 @@ Start here: [FNO Guides](/docs/fno-guides).
 
 :::warning[They are not interchangeable]
 
-- **Mainnet** joins a WireGuard **guarded overlay** and launches with
-  `--reserved-only` plus a fixed `--reserved-nodes` peer list. Stricter EU-region
-  and hardware requirements apply.
-- **Preprod** uses **standard peer discovery** — no overlay, no reserved-node
-  flags — and has lighter requirements.
+- **Mainnet** is production. Stricter EU-region and hardware requirements apply.
+- **Preprod** is the testnet, with lighter requirements.
+
+Both use standard peer discovery — no overlay network, no reserved-node flags.
 
 :::
 ### What are session keys?
@@ -126,8 +124,7 @@ Most often one of two reasons:
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
 | Node syncs blocks but finality is stuck / not participating | Wrong GRANDPA key path after a config change. Block-sync health alone hides this. | Correct the GRANDPA key path in the env file, restart, and add **finality/GRANDPA participation** monitoring — block-sync checks are not enough to confirm validator health. |
-| Peer count stuck at 0 | Firewall, or (Mainnet) wrong/stale reserved-node or WireGuard config | Open p2p port **30333**. On Mainnet, confirm your `--reserved-nodes` list and WireGuard handshakes; request an updated `wg0.conf` if peers won't establish. |
-| WireGuard won't peer with all nodes | Incorrect WireGuard public key(s) | Re-verify the public keys you submitted; ask the Foundation for a refreshed `wg0.conf`. See the [live preprod overlay allocation](/docs/fno-guides/preprod-wireguard-onboarding). |
+| Peer count stuck at 0 | Firewall, or unreachable/incorrectly-listed peers | Open p2p port **30333** on your host and cloud firewall, then confirm the node is dialing peers and that outbound connections are allowed. |
 | PostgreSQL connection refused | DB not on 5432, or wrong `.env` / `.pgpass` values | Confirm PostgreSQL is up on port 5432 and the connection string in `.env` matches `.pgpass`. |
 | Disk fills during a Cardano migration | `cardano-db-sync` replay placed on an undersized volume | Check disk headroom and `data_directory` placement **before** any large replay; keep the Postgres datadir on the large NVMe volume. |
 | Node fails to start after an upgrade | Packaging or chain-config change missed | Release archives change format (`.zip` vs `.tar.gz`) and may ship a new `res/` chain-config directory. Update **both** binary and config; read the release note. |
@@ -168,7 +165,7 @@ before asserting them in any comm.
 Key locations:
 
 - `docs/` — operator-facing guides (this site).
-- `configs/` — `wireguard/` and `nodes/` configs.
+- `configs/` — `nodes/` configs.
 - `changes/planned/` and `changes/completed/` — coordinated change records (primary
   source for announcements).
 - `runbooks/fno/` — operator procedures (link these instead of inlining steps).
@@ -197,7 +194,6 @@ Recurring pain points worth addressing proactively:
 
 - **Session-key loading** — include key-verification steps with any epoch-activation comm.
 - **Upgrade packaging** — call out `.zip`/`.tar.gz` changes and any new `res/` config files explicitly.
-- **WireGuard submissions** — late or incorrect public keys block peering; emphasize that late submissions delay other FNOs.
 - **n+2 timing** — state the exact epoch and UTC timestamp that triggers block production.
 - **Discord access** — remind FNOs to confirm the Validator Role before required calls.
 - **Monitoring gaps** — block-sync health is not validator health; finality must be monitored separately.

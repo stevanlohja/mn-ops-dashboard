@@ -2,7 +2,7 @@
 
 ## Region & Cloud Strategy
 
-All Mainnet nodes must be deployed within the **EU region**. The Midnight Foundation may periodically request regional migrations to optimize network topology, health, and latency.
+All Mainnet nodes must be deployed within the **EU region**. Regional migrations may be requested periodically to optimize network topology, health, and latency.
 
 :::warning[Avoid GCP]
 

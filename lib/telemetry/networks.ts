@@ -16,8 +16,8 @@ export interface NetworkConfig {
   expectedPeers: number | null;
   /**
    * Intended operating model at this stage of the network — stated by design,
-   * not a health/decentralization score. Midnight currently runs a permissioned
-   * federated set behind a guarded overlay; that is the goal, not a shortcoming.
+   * not a health/decentralization score. Midnight runs a federated set of known
+   * operators; that is the goal, not a shortcoming.
    */
   model: string;
   modelNote: string;
@@ -32,7 +32,7 @@ export const NETWORKS: Record<NetworkId, NetworkConfig> = {
     expectedValidators: MAINNET_VALIDATORS.length,
     expectedPeers: 17,
     model: "Federated",
-    modelNote: "Guarded overlay · by design",
+    modelNote: "Federated set · by design",
   },
   preprod: {
     id: "preprod",
@@ -42,7 +42,7 @@ export const NETWORKS: Record<NetworkId, NetworkConfig> = {
     expectedValidators: null,
     expectedPeers: null,
     model: "Federated",
-    modelNote: "Guarded overlay · by design",
+    modelNote: "Federated set · by design",
   },
   preview: {
     id: "preview",

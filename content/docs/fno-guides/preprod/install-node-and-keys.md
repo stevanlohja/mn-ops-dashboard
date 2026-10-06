@@ -154,7 +154,7 @@ EOF
 cat "$OUTPUT_FILE"
 ```
 
-The resulting JSON file is your Validator Application. Share it with the Midnight Foundation to be authorized for block production on Preprod.
+The resulting JSON file is your Validator Application. Keep it with your operational records as the record of your application to produce blocks on Preprod.
 
 ## Best practices for secret management
 

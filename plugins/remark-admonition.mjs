@@ -1,9 +1,8 @@
 /**
  * remark-admonition — render remark-directive containers as admonition blocks.
  *
- * The sync step (scripts/sync-docs.mjs) rewrites MkDocs admonitions
- * (`!!! note "Title"`) into directive containers (`:::note[Title]`). This plugin
- * turns those `containerDirective` nodes into:
+ * Docs author admonitions directly as directive containers (`:::note[Title]`).
+ * This plugin turns those `containerDirective` nodes into:
  *
  *   <div class="admonition admonition-note">
  *     <div class="admonition-title">Title</div>

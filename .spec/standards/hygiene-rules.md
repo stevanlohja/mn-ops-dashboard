@@ -14,9 +14,9 @@ pnpm build    # next build — also runs the TypeScript typecheck
 
 > **There is no `pnpm test`.** Do not run or reference it. If asked to "add tests," first wire a runner (see below) — don't fabricate a passing test step.
 
-## When a change touches generated content
+## When a change touches docs
 
-- If you change vendored docs behavior or the ops-repo docs, run `pnpm docs:sync` and commit the regenerated `content/docs/**` + `lib/docs/*` together. Never hand-edit generated files.
+- Docs live in `content/docs/**` and are **hand-maintained**. When you add, rename, or remove a page, update `lib/docs/manifest.ts` (sidebar tree) **and** `lib/docs/loader.ts` (import registry) in the same change — a manifest slug with no importer renders nothing at `/docs/[...slug]`.
 
 ## Verifying behavior (not just compiling)
 

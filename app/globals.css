@@ -1,67 +1,80 @@
 @import "tailwindcss";
 
 /* ────────────────────────────────────────────────────────────────────────────
-   Theme tokens — dark (default, brand) and light.
+   Theme tokens — dark (default) and light.
    Components only ever reference the mn-* Tailwind utilities below, which
    resolve through CSS variables, so every component is theme-aware for free.
    ──────────────────────────────────────────────────────────────────────────── */
 
-/* Brand palette mirrors midnight.network design tokens:
-   --default-background-color #101010 · --default-text-color #fff
-   --theme-color-primary #0000fe · --theme-color-primary-dark #0000d0
-   --theme-color-grey #4b4b4b · ring rgba(77,77,254,.5) (#4d4dfe)         */
+/* ── Palette provenance ────────────────────────────────────────────────────────
+   Drawn from the stevanlohja.com design system ("technical dossier"): dark-first,
+   monospace-forward, square geometry, hairline rules, drafting grid. Severity
+   colours (p0–p2, escalate) are semantic, not brand — they stay as they were.
+   ──────────────────────────────────────────────────────────────────────────── */
 
 :root,
 [data-theme="dark"] {
-  --mn-bg:        #101010;   /* brand background (--default-background-color) */
-  --mn-surface:   #181818;   /* elevated surface (cards, nav)               */
-  --mn-surface-2: #222222;   /* raised surface (inputs, hover targets)      */
-  --mn-border:    #2a2a2a;   /* subtle borders on dark                       */
-  --mn-accent:    #0000fe;   /* brand primary (--theme-color-primary)        */
-  --mn-accent-2:  #4d4dfe;   /* brand ring / lighter accent (links on dark)  */
-  --mn-text:      #ffffff;   /* primary text (--default-text-color)          */
-  --mn-text-2:    #cccccc;   /* body / prose text                            */
-  --mn-muted:     #7a7a7a;   /* secondary / label text                       */
-  --mn-on-accent: #ffffff;   /* text on accent backgrounds                   */
+  --mn-bg:        #07080a;                    /* portfolio --bg */
+  --mn-surface:   #0c0e12;                    /* portfolio --bg-1 (cards, nav) */
+  --mn-surface-2: #11141a;                    /* portfolio --bg-2 (inputs, hover targets) */
+  --mn-border:    #1c2028;                    /* portfolio --line (hairline rules) */
+  --mn-accent:    #58a6ff;                    /* portfolio --accent (interactive) */
+  --mn-accent-2:  #79c0ff;                    /* lighter accent - links/labels on dark */
+  --mn-text:      #e6e9ef;                    /* portfolio --fg */
+  --mn-text-2:    #a3abb9;                    /* portfolio --fg-1 (body / prose) */
+  --mn-muted:     #6b7385;                    /* portfolio --fg-2 (secondary / labels) */
+  --mn-on-accent: #06101c;                    /* portfolio --accent-fg (text on accent bg) */
+  --mn-grid:      rgba(255, 255, 255, .035);  /* drafting-grid overlay */
 
-  --mn-ring:      rgba(77, 77, 254, .5); /* brand focus ring                 */
+  --mn-ring:      rgba(88, 166, 255, .5);     /* focus ring */
 
   /* Severity / operational colours */
-  --mn-p0:       #f43f5e;    /* catastrophic                                */
-  --mn-p1:       #ef4444;    /* critical                                    */
-  --mn-p2:       #f97316;    /* high                                        */
-  --mn-p3:       #eab308;    /* medium / warning                            */
-  --mn-ok:       #22c55e;    /* healthy                                     */
-  --mn-escalate: #a855f7;    /* escalate                                    */
+  --mn-p0:        #f43f5e;                    /* catastrophic */
+  --mn-p1:        #ef4444;                    /* critical */
+  --mn-p2:        #f97316;                    /* high */
+  --mn-p3:        #d29922;                    /* medium / warning (portfolio --warn) */
+  --mn-ok:        #3fb950;                    /* healthy (portfolio --ok) */
+  --mn-escalate:  #a855f7;                    /* escalate */
 }
 
 [data-theme="light"] {
-  --mn-bg:        #ffffff;   /* brand section-light background               */
-  --mn-surface:   #ffffff;
-  --mn-surface-2: #f2f2f2;
-  --mn-border:    #e6e6e6;   /* brand default border colour                  */
-  --mn-accent:    #0000fe;   /* same brand primary across themes             */
-  --mn-accent-2:  #0000d0;   /* --theme-color-primary-dark                   */
-  --mn-text:      #101010;   /* --alternative-text-color                     */
-  --mn-text-2:    #2e2e2e;
-  --mn-muted:     #4b4b4b;   /* --theme-color-grey                           */
-  --mn-on-accent: #ffffff;
+  --mn-bg:        #f5f6f8;                    /* portfolio --bg (blueprint paper) */
+  --mn-surface:   #ffffff;                    /* portfolio --bg-1 */
+  --mn-surface-2: #eef0f3;                    /* portfolio --bg-2 */
+  --mn-border:    #d7dbe2;                    /* portfolio --line */
+  --mn-accent:    #0969da;                    /* portfolio --accent */
+  --mn-accent-2:  #0550ae;                    /* darker accent - links on paper */
+  --mn-text:      #12151b;                    /* portfolio --fg */
+  --mn-text-2:    #454c59;                    /* portfolio --fg-1 */
+  --mn-muted:     #687083;                    /* portfolio --fg-2 */
+  --mn-on-accent: #ffffff;                    /* portfolio --accent-fg */
+  --mn-grid:      rgba(18, 22, 30, .06);      /* drafting-grid overlay */
 
-  --mn-ring:      rgba(0, 0, 254, .35);
+  --mn-ring:      rgba(9, 105, 218, .35);     /* focus ring */
 
-  --mn-p0:       #be123c;
-  --mn-p1:       #dc2626;
-  --mn-p2:       #ea580c;
-  --mn-p3:       #a16207;
-  --mn-ok:       #15803d;
-  --mn-escalate: #7e22ce;
+  --mn-p0:        #be123c;                    
+  --mn-p1:        #dc2626;                    
+  --mn-p2:        #ea580c;                    
+  --mn-p3:        #9a6700;                    /* medium / warning (portfolio --warn) */
+  --mn-ok:        #1a7f37;                    /* healthy (portfolio --ok) */
+  --mn-escalate:  #7e22ce;                    
 }
 
 @theme inline {
   --color-background: var(--mn-bg);
   --color-foreground: var(--mn-text);
-  --font-sans: var(--font-outfit);
-  --font-mono: var(--font-dm-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains);
+
+  /* Square geometry: the portfolio uses 2–3px corners, not pills. Overriding
+     the radius tokens restyles every rounded-* utility in one place
+     (rounded-full is a literal calc(), so dots/badges stay round). */
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 3px;
+  --radius-xl: 3px;
+  --radius-2xl: 3px;
+  --radius-3xl: 4px;
 
   --color-mn-bg:        var(--mn-bg);
   --color-mn-surface:   var(--mn-surface);
@@ -91,20 +104,27 @@ html {
 }
 
 body {
-  background: var(--mn-bg);
   color: var(--mn-text);
-  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  /* Drafting grid: the page sits on 28px graph paper and cards are solid on top
+     (same effect as the portfolio). Remove this block to drop the grid. */
+  background-color: var(--mn-bg);
+  background-image:
+    linear-gradient(var(--mn-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--mn-grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: -1px -1px;
 }
 
-/* Brand focus ring — matches midnight.network --tw-ring-color */
+/* Focus ring — tinted to the accent so it reads on either theme. */
 :focus-visible {
   outline: 2px solid var(--mn-ring);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: var(--mn-accent);
-  color: var(--mn-on-accent);
+  background: color-mix(in srgb, var(--mn-accent) 32%, transparent);
+  color: var(--mn-text);
 }
 
 @keyframes slideIn {
@@ -220,7 +240,7 @@ body {
 }
 
 .prose-runbook code {
-  font-family: var(--font-dm-mono), ui-monospace, monospace;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 0.85em;
   background: var(--mn-surface-2);
   color: var(--mn-accent-2);

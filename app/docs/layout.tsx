@@ -12,9 +12,6 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
         <aside className="lg:w-60 shrink-0 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
           <div className="mb-4">
             <h1 className="text-sm font-semibold text-mn-text">Documentation</h1>
-            <p className="text-[11px] text-mn-muted mt-0.5">
-              Mirrored from midnight-network-ops
-            </p>
           </div>
           <DocsSidebar nodes={DOCS_MANIFEST} />
         </aside>

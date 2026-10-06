@@ -2,7 +2,7 @@
 
 ## Elevator pitch
 
-PO Dash 2.0 is the **Midnight Foundation's internal operations dashboard** for monitoring the health of the Midnight network and its Federated Node Operators (FNOs). It reads the public Substrate telemetry feed live in the browser and turns it into network health, per-validator attestation, exportable reports, incident diagnostics, and an at-a-glance executive/board view. It runs entirely client-side — no backend, no database, no API keys — so it deploys anywhere static and exposes no secrets.
+PO Dash 2.0 is an **operations dashboard for monitoring the health of the Midnight network** and its Federated Node Operators (FNOs). It reads the public Substrate telemetry feed live in the browser and turns it into network health, per-validator attestation, exportable reports, incident diagnostics, and an at-a-glance executive/board view. It runs entirely client-side — no backend, no database, no API keys — so it deploys anywhere static and exposes no secrets.
 
 ## North star
 
@@ -11,7 +11,7 @@ PO Dash 2.0 is the **Midnight Foundation's internal operations dashboard** for m
 ## Primary users / personas
 
 - **Protocol Operations Manager** (primary): drives coordinated changes, watches finality/consensus, generates reports, fields FNO issues.
-- **MNF leadership / executives**: want a glanceable "is the network healthy?" read — the Executive overview and Board (kiosk) mode.
+- **Leadership / executives**: want a glanceable "is the network healthy?" read — the Executive overview and Board (kiosk) mode.
 - **Ops / DevRel teammates**: triage incidents via the diagnostic tree and runbooks, reference FNO docs.
 
 The audience is technical and time-pressured. Lead with signal; never bury the one number that matters.

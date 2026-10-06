@@ -7,7 +7,7 @@ app/         Routes only — no logic. Compose providers + components.
 providers/   Bind pure logic to React (context, WebSocket lifecycle, persistence).
 components/  Render state. Presentational; receive data via props or provider hooks.
 lib/         Pure TypeScript domain logic. ZERO React imports. Unit-testable in isolation.
-content/     MDX content (runbooks, vendored docs). Rendered, not logic.
+content/     MDX content (runbooks, docs). Rendered, not logic.
 ```
 
 > **The cardinal rule:** if it can be a pure function, it goes in `lib/`. React only enters at `providers/` and `components/`. This is what makes the domain logic testable without a browser and keeps render churn down. A reviewer who sees `import ... from "react"` in `lib/` should reject the change.

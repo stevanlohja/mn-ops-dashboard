@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
 // Turbopack, which can't serialise function references in loader options. The
 // @next/mdx loader resolves these paths itself (see node_modules/@next/mdx).
 //   - remark-gfm:       GFM tables / task lists / autolinks
-//   - remark-directive: parse `:::note[Title]` containers (produced by sync-docs)
+//   - remark-directive: parse `:::note[Title]` containers (docs admonitions)
 //   - remark-admonition: render those directives as styled admonition blocks
 const withMDX = createMDX({
   extension: /\.(md|mdx)$/,

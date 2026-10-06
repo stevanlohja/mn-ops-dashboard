@@ -18,7 +18,6 @@ Confirm versions against `package.json` before asserting them — this file docu
 
 - **Globe:** `d3-geo` + `topojson-client` + `world-atlas` (bundled `land-110m`, vendored to `lib/executive/`). Orthographic projection on canvas; no runtime asset fetch.
 - **Diagrams:** `mermaid` (client-only, dynamic import; rendered via a `pre` override in `mdx-components.tsx`).
-- **Sync tooling:** `js-yaml` (parses `mkdocs.yml` nav in `scripts/sync-docs.mjs`).
 
 ## Hard constraints
 
@@ -30,8 +29,9 @@ Confirm versions against `package.json` before asserting them — this file docu
 
 ## Generated / vendored (do not hand-edit)
 
-- `content/docs/**`, `lib/docs/manifest.ts`, `lib/docs/loader.ts` ← `pnpm docs:sync` (source: `../git/midnight-network-ops/docs` + `mkdocs.yml`).
 - `lib/executive/land-110m.json` ← vendored from `world-atlas`.
+
+> Docs are **not** generated. `content/docs/**`, `lib/docs/manifest.ts`, and `lib/docs/loader.ts` are hand-maintained in this repo (see `CLAUDE.md` constraint 9).
 
 ## Not yet present (and that's intentional / tracked)
 

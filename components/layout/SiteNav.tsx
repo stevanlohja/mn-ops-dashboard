@@ -42,16 +42,24 @@ export default function SiteNav() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 gap-4">
           <div className="flex items-center gap-5 min-w-0">
-            <Link href="/" className="flex items-center gap-3 shrink-0">
-              <img
-                src={`${BASE_PATH}/logos/mn-logo-horizontal.svg`}
-                alt="Midnight"
-                className="h-5 w-auto [[data-theme=light]_&]:invert"
-              />
-              <span className="hidden md:inline font-mono text-[10px] text-mn-muted border border-mn-border rounded-full px-2 py-0.5 tracking-widest">
-                PO DASH 2.0
-              </span>
-            </Link>
+            <div className="flex items-center gap-3 shrink-0">
+              <Link href="/" className="flex items-center">
+                <img
+                  src={`${BASE_PATH}/logos/mn-logo-horizontal.svg`}
+                  alt="Midnight"
+                  className="h-5 w-auto [[data-theme=light]_&]:invert"
+                />
+              </Link>
+              <a
+                href="https://github.com/stevanlohja/mn-ops-dashboard"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Brought to you by Stev — mn-ops-dashboard on GitHub"
+                className="hidden md:inline whitespace-nowrap font-mono text-[10px] text-mn-muted border border-mn-border rounded-full px-2 py-0.5 transition-colors hover:border-mn-accent hover:text-mn-text"
+              >
+                Brought to you by Stev
+              </a>
+            </div>
 
             <span data-tour="network" className="inline-flex shrink-0">
               <NetworkSwitcher network={network} setNetwork={setNetwork} />

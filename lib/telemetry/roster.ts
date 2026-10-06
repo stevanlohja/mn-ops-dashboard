@@ -11,11 +11,9 @@ import type { NodeState } from "./types";
  * public telemetry feed, so this file adds no non-public detail: no operator
  * entities, no overlay addresses, no endpoints. Keep it that way.
  *
- * PROVENANCE (mainnet, verified 2026-07-29): the FNO validator peers in the ops
- * repo overlay config (`configs/wireguard/mainnet/wg0.conf`, overlay
- * .8.100–.8.110) plus the two Shielded-operated validators in the same peer set
- * — 13 total, matching `expectedValidators` and confirmed name-for-name against
- * a live read of the mainnet feed.
+ * PROVENANCE (mainnet, verified 2026-07-29): 13 total, matching
+ * `expectedValidators` and confirmed name-for-name against a live read of the
+ * mainnet feed.
  *
  * A node that is renamed shows up twice: missing from the roster AND flagged
  * "unlisted" in the validator table. That is deliberate — it makes roster drift
@@ -49,7 +47,7 @@ export const MAINNET_VALIDATORS: RosterEntry[] = [
 
 /**
  * Expected set per network. `null` = no fixed roster to check against: the
- * preprod and preview sets churn with resets and are not pinned in the ops repo
+ * preprod and preview sets churn with resets and are not pinned to a fixed list
  * the way mainnet's is, so they are counted, not roll-called. Do not invent one.
  */
 export const VALIDATOR_ROSTER: Record<NetworkId, RosterEntry[] | null> = {

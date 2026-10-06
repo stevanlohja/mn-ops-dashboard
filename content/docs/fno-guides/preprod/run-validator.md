@@ -2,17 +2,12 @@
 
 This guide describes how to configure environment variables, perform a test launch, and deploy the Midnight node as a system service on **Preprod**.
 
-:::warning[Preprod vs Mainnet]
-
-Preprod does **not** use the WireGuard guarded overlay. The `--reserved-only` and `--reserved-nodes` flags are not required. The node connects to the Preprod network through standard peer discovery.
-
-:::
 :::note[Checklist]
 
 At this point you should have:
 
 1. Fully synced Cardano Preprod availability services ([Set Up Cardano Preprod Availability](/docs/fno-guides/preprod/cardano-availability)).
-2. Generated and shared your public validator keys with the Midnight Foundation ([Install Midnight Node and Generate Validator Keys (Preprod)](/docs/fno-guides/preprod/install-node-and-keys)).
+2. Generated your validator keys, which stay on your own infrastructure ([Install Midnight Node and Generate Validator Keys (Preprod)](/docs/fno-guides/preprod/install-node-and-keys)).
 
 :::
 ## 1. Prepare the environment configuration

@@ -17,7 +17,6 @@ Package manager is **pnpm** (Node 20+, tested on 22). Use these exact scripts; d
 - **Production build:** `pnpm build` (this also runs the TypeScript typecheck)
 - **Serve build:** `pnpm start`
 - **Lint:** `pnpm lint`
-- **Regenerate vendored docs:** `pnpm docs:sync` (pulls from the read-only ops clone at `../git/midnight-network-ops`)
 
 > **There is no test runner configured.** Do **not** run `pnpm test`. The verification gate is **`pnpm lint && pnpm build`** (a clean typecheck + lint). Adding a test framework is a tracked item in [`.spec/standards/hygiene-rules.md`](.spec/standards/hygiene-rules.md).
 
@@ -49,7 +48,7 @@ These are the load-bearing rules of this codebase. Violating them breaks the arc
 6. **Turbopack is the default bundler.** MDX remark plugins in [`next.config.ts`](next.config.ts) must be passed as **string paths**, never function references (Turbopack can't serialize functions across the loader boundary).
 7. **Be honest about data.** The feed is session-scoped with only capped buffers — there is **no historical persistence**. Label anything modeled/approximate/session-scoped as such; never imply multi-day history.
 8. **The expected validator set is a named roster.** [`lib/telemetry/roster.ts`](lib/telemetry/roster.ts) is the source of truth for which validators a network *should* have (mainnet: 13); `networks.ts` derives `expectedValidators` from it. Never take a denominator from "what the feed currently shows" — that hides a validator that has vanished ("12/12 online"). A roster miss is **"not reporting to telemetry"**, never asserted as a down node, and never claimed until the feed has settled (`useFeedSettled`). Telemetry names only in that file: no operator entities, no overlay addresses, no endpoints (this repo is public).
-9. **Generated files are not hand-edited.** `content/docs/**` and `lib/docs/*` are produced by `pnpm docs:sync`. Change the source in the ops repo and re-sync.
+9. **Docs are hand-maintained in this repo.** `content/docs/**` is the source of truth — edit it directly; there is no external docs source to re-sync from. `lib/docs/manifest.ts` (sidebar nav) and `lib/docs/loader.ts` (import registry) must stay in sync with it: every manifest slug needs a matching loader key and a real file, or `/docs/[...slug]` renders nothing. The only remaining vendored file is `lib/executive/land-110m.json`.
 10. **Verify before declaring done:** `pnpm lint && pnpm build` must be clean.
 11. **Keep the spec in sync (mandatory).** Whenever a change introduces or alters a rule, constraint, command, dependency, route, or behavior that a [`.spec/`](.spec/) file or this `CLAUDE.md` describes, you **must** update the affected spec file(s) **and** this file in the *same* change — never let code and spec drift. Run the Spec Maintenance & Synchronization Protocol below (and [`.spec/workflows/spec-sync.md`](.spec/workflows/spec-sync.md)); if the impact is ambiguous, stop and emit a Context Gap Report instead of guessing.
 

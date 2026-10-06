@@ -27,7 +27,7 @@ export default function Mermaid({ chart }: { chart: string }) {
           startOnLoad: false,
           securityLevel: "strict",
           theme: theme === "dark" ? "dark" : "neutral",
-          themeVariables: { fontFamily: "var(--font-outfit), system-ui, sans-serif" },
+          themeVariables: { fontFamily: "var(--font-inter), system-ui, sans-serif" },
         });
         const { svg } = await mermaid.render(id, chart);
         if (!cancelled) setSvg(svg);

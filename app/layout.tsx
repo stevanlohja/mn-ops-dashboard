@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit, DM_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import SiteNav from "@/components/layout/SiteNav";
 import MaintainerBanner from "@/components/layout/MaintainerBanner";
 import TourOverlay from "@/components/tour/TourOverlay";
@@ -9,17 +9,18 @@ import { ThemeProvider, THEME_INIT_SCRIPT } from "@/providers/ThemeProvider";
 import { TourProvider } from "@/providers/TourProvider";
 import "./globals.css";
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+// Inter (prose) + JetBrains Mono (labels, data, UI) — the two families of the
+// stevanlohja.com design system, so the dashboard reads as part of the same set.
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
 });
 
-// DM Mono is Midnight's brand monospace face (used across midnight.network)
-const dmMono = DM_Mono({
-  variable: "--font-dm-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains",
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: ["300", "400", "500", "700"],
 });
 
 export const metadata: Metadata = {
@@ -37,7 +38,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${outfit.variable} ${dmMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <head>
         {/* Apply persisted theme before first paint to avoid a flash */}

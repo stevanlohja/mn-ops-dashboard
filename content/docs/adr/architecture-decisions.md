@@ -1,6 +1,6 @@
 # Architecture Decision Records (ADRs)
 
-ADRs are how MNF documents projects, requirements, and decisions in a way that stays on record and lets others contribute. An ADR is a snapshot of the environment at the time of the decision and a lasting record we can refer to. Decisions can be updated as a project evolves or new information appears. Periodically review past ADRs to confirm they are still valid or need updates.
+ADRs are how this project documents projects, requirements, and decisions in a way that stays on record and lets others contribute. An ADR is a snapshot of the environment at the time of the decision and a lasting record we can refer to. Decisions can be updated as a project evolves or new information appears. Periodically review past ADRs to confirm they are still valid or need updates.
 
 For new ADRs, create a new page under this section and use the template below. Use the naming scheme: **`ADR00X - Short description`** where `00X` is the next number in sequence.
 

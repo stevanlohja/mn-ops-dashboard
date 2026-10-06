@@ -1,5 +1,5 @@
 ---
-owner: Midnight Foundation
+owner: Midnight Network Operations
 author: "@stevanlohja"
 last_verified: 2026-06-10
 volatility: stable
@@ -14,13 +14,13 @@ depends_on:
 
 # Network Change Management & Upgrade Specification
 
-**Audience:** Full Node Operators (FNOs) running Midnight validators on Preprod or Mainnet, and Midnight Foundation SRE / Protocol Operations.
+**Audience:** Full Node Operators (FNOs) running Midnight validators on Preprod or Mainnet, and Midnight Network operations.
 
 **Last updated:** 2026-06-10
 
 **Author:** @stevanlohja
 
-**Owner:** Midnight Foundation
+**Owner:** Midnight Network Operations
 
 ---
 

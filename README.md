@@ -36,7 +36,7 @@ The app is a Next.js App Router project with no server-side state — it deploys
 | `/reports` | Report builder: snapshot the current network state into Markdown, **plain text (Notifi-safe)**, JSON, or CSV. Toggle sections, then copy to clipboard, download, or print. |
 | `/diagnostic` | Guided incident diagnostic tree (carried over from v0.1). |
 | `/runbooks` | Runbook index + rendered runbook pages (wired up in 2.0 — these were dead stubs in v0.1). |
-| `/docs` | Operator documentation mirrored from the `midnight-network-ops` MkDocs site (FNO guides, architecture, processes, ADRs, FAQ), rendered natively in the dashboard theme. See [Documentation](#documentation). |
+| `/docs` | Operator documentation (FNO guides, architecture, processes, ADRs, FAQ), maintained in this repo and rendered natively in the dashboard theme. See [Documentation](#documentation). |
 | `/network-change` | *Experimental*, manually-maintained status board of coordinated changes (Cardano/Midnight HFs, node releases, host migrations) as they roll Preview → Preprod → Mainnet, with live telemetry-derived rollout readiness where measurable. |
 | `/roadmap` | *Experimental* planning calendar. A month grid renders multi-day windows as highlighted spanning bars, with an Agenda list view; events are the Network-Change board projected automatically plus a hand-editable events file. Manually maintained, forward-looking — not telemetry. |
 
@@ -78,25 +78,16 @@ The attestation score is a weighted composite (re-normalised when a component la
 
 ## Documentation
 
-The `/docs` section embeds the operator documentation that lives in the `midnight-network-ops` repo (a MkDocs Material site) directly inside the dashboard, rendered in the dashboard's own theme rather than as a separate site — so there is no second look-and-feel to maintain.
+The `/docs` section renders the operator documentation directly inside the dashboard, in the dashboard's own theme rather than as a separate site — so there is no second look-and-feel to maintain.
 
-Content is **vendored**, not built from a second tool. A sync script reads the read-only ops clone and regenerates everything:
+Content is **maintained in this repo** as plain markdown under `content/docs/`. Two registries wire it up, and both are hand-edited:
 
-```bash
-pnpm docs:sync        # re-run whenever the ops-repo docs change
-```
+- `lib/docs/manifest.ts` — the sidebar tree.
+- `lib/docs/loader.ts` — the static MDX import registry.
 
-It does three things (`scripts/sync-docs.mjs`):
+When you add, rename, or remove a doc, update both: every manifest `slug` needs a matching loader key and a real file under `content/docs/`, or `/docs/[...slug]` renders nothing.
 
-1. Copies `git/midnight-network-ops/docs/**/*.md` into `content/docs/` (the ops clone is read-only; the script only reads it).
-2. Parses the `nav:` in `mkdocs.yml` into `lib/docs/manifest.ts` (sidebar tree) and generates `lib/docs/loader.ts` (static MDX import registry).
-3. Rewrites two pieces of MkDocs-specific syntax so the content renders as plain markdown in the dashboard:
-   - admonitions (`!!! note "Title"`) → `remark-directive` containers, styled as `.admonition` blocks via `app/globals.css`;
-   - inter-doc links (`](install-node-and-keys.md)`) → dashboard routes (`/docs/...`).
-
-Mermaid diagrams stay as fenced blocks and render client-side via `components/docs/Mermaid.tsx` (wired through a `pre` override in `mdx-components.tsx`), theme-aware with the rest of the dashboard.
-
-`content/docs/`, `lib/docs/manifest.ts`, and `lib/docs/loader.ts` are generated — do not edit them by hand; change the source in the ops repo and re-run `pnpm docs:sync`.
+Admonitions use `remark-directive` containers (`:::note[Title]` … `:::`), styled as `.admonition` blocks via `app/globals.css`; inter-doc links are dashboard routes (`](/docs/...)`). Mermaid diagrams stay as fenced blocks and render client-side via `components/docs/Mermaid.tsx` (wired through a `pre` override in `mdx-components.tsx`), theme-aware with the rest of the dashboard.
 
 ---
 
