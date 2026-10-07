@@ -24,8 +24,6 @@
   --mn-text-2:    #a3abb9;                    /* portfolio --fg-1 (body / prose) */
   --mn-muted:     #6b7385;                    /* portfolio --fg-2 (secondary / labels) */
   --mn-on-accent: #06101c;                    /* portfolio --accent-fg (text on accent bg) */
-  --mn-grid:      rgba(255, 255, 255, .035);  /* drafting-grid overlay */
-
   --mn-ring:      rgba(88, 166, 255, .5);     /* focus ring */
 
   /* Severity / operational colours */
@@ -48,16 +46,14 @@
   --mn-text-2:    #454c59;                    /* portfolio --fg-1 */
   --mn-muted:     #687083;                    /* portfolio --fg-2 */
   --mn-on-accent: #ffffff;                    /* portfolio --accent-fg */
-  --mn-grid:      rgba(18, 22, 30, .06);      /* drafting-grid overlay */
-
   --mn-ring:      rgba(9, 105, 218, .35);     /* focus ring */
 
-  --mn-p0:        #be123c;                    
-  --mn-p1:        #dc2626;                    
-  --mn-p2:        #ea580c;                    
+  --mn-p0:        #be123c;
+  --mn-p1:        #dc2626;
+  --mn-p2:        #ea580c;
   --mn-p3:        #9a6700;                    /* medium / warning (portfolio --warn) */
   --mn-ok:        #1a7f37;                    /* healthy (portfolio --ok) */
-  --mn-escalate:  #7e22ce;                    
+  --mn-escalate:  #7e22ce;
 }
 
 @theme inline {
@@ -109,11 +105,6 @@ body {
   /* Drafting grid: the page sits on 28px graph paper and cards are solid on top
      (same effect as the portfolio). Remove this block to drop the grid. */
   background-color: var(--mn-bg);
-  background-image:
-    linear-gradient(var(--mn-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--mn-grid) 1px, transparent 1px);
-  background-size: 28px 28px;
-  background-position: -1px -1px;
 }
 
 /* Focus ring — tinted to the accent so it reads on either theme. */

@@ -31,17 +31,17 @@ export default function MaintainerBanner() {
   return (
     <aside
       aria-label={`${NOTICE.label} — ${NOTICE.message}`}
-      className="no-print border-b border-mn-p3/30 bg-mn-p3/10"
+      className="no-print border-b border-mn-p3/30 bg-mn-p3"
     >
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2 sm:px-6 lg:px-8">
-        <span className="inline-flex shrink-0 items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-mn-p3">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-mn-p3" />
+        <span className="inline-flex shrink-0 items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-mn-on-accent">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-mn-on-accent" />
           {NOTICE.label}
         </span>
-        <span className="text-xs text-mn-text sm:text-sm">{NOTICE.message}</span>
+        <span className="text-xs text-mn-on-accent sm:text-sm">{NOTICE.message}</span>
         <Link
           href={NOTICE.href}
-          className="text-xs font-semibold text-mn-p3 underline-offset-2 hover:underline sm:text-sm"
+          className="text-xs font-semibold text-mn-on-accent underline-offset-2 hover:underline sm:text-sm"
         >
           {NOTICE.linkLabel} →
         </Link>
