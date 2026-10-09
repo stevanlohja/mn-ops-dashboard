@@ -60,7 +60,7 @@ export const TOUR_STEPS: TourStep[] = [
     id: "resources",
     target: '[data-tour="resources"]',
     title: "Resources",
-    body: "The guided diagnostic tree, runbooks, and FNO docs all live under here.",
+    body: "The product roadmap, guided diagnostic tree, runbooks, and FNO docs all live under here.",
   },
   {
     id: "notify",

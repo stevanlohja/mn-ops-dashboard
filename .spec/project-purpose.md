@@ -27,6 +27,7 @@ Mainnet, Preprod, Preview — switchable in the nav. Thresholds (expected valida
 - Report generation (Markdown / Notifi-safe plain text / JSON / CSV) from a frozen snapshot.
 - Discord webhook alerting (browser → webhook, edge-triggered).
 - Incident diagnostic tree + rendered FNO runbooks + vendored ops docs.
+- Product roadmap (`/roadmap`) — hand-maintained, clearly-labeled directional workstreams for Nighthawk itself; intentions, not dated commitments and not telemetry.
 - Overview (`/executive`) and full-screen Board (kiosk) mode.
 - Dark/light theming on the dashboard's tactical palette.
 

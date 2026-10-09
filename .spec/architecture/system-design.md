@@ -22,6 +22,7 @@ content/     MDX content (runbooks, docs). Rendered, not logic.
 - `reports/` — report model build + md/txt/json/csv renderers.
 - `runbooks/`, `docs/` — manifest + static import registries for MDX.
 - `executive/` — `metrics.ts` (executive rollups), `markers.ts` (globe markers).
+- `roadmap/` — product roadmap data (`product-roadmap.ts`): pure, hand-maintained workstreams for the dashboard itself — undated intentions, no calendar, no telemetry.
 - `format.ts` — shared display formatters.
 
 ### `providers/`
@@ -56,7 +57,7 @@ wss telemetry feed
 
 ## Routes (`app/`)
 
-`/` (home) · `/executive` · `/dashboard` · `/attestation` · `/reports` · `/diagnostic` · `/runbooks` + `/runbooks/[slug]` · `/docs` + `/docs/[...slug]` · `/board` (full-screen kiosk; nav chrome suppressed).
+`/` (home) · `/executive` · `/dashboard` · `/attestation` · `/reports` · `/diagnostic` · `/runbooks` + `/runbooks/[slug]` · `/docs` + `/docs/[...slug]` · `/roadmap` · `/board` (full-screen kiosk; nav chrome suppressed).
 
 ## 🚫 Banned practices
 

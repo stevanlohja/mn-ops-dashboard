@@ -23,6 +23,7 @@ const PRIMARY_LINKS = [
 // Reference surfaces — grouped under a single "Resources" dropdown to keep the
 // nav row uncluttered.
 const RESOURCE_LINKS = [
+  { href: "/roadmap", label: "Roadmap" },
   { href: "/diagnostic", label: "Diagnose" },
   { href: "/runbooks", label: "Runbooks" },
   { href: "/docs", label: "Docs" },

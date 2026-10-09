@@ -37,6 +37,7 @@ The app is a Next.js App Router project with no server-side state — it deploys
 | `/diagnostic` | Guided incident diagnostic tree (carried over from v0.1). |
 | `/runbooks` | Runbook index + rendered runbook pages (wired up in 2.0 — these were dead stubs in v0.1). |
 | `/docs` | Operator documentation (FNO guides, architecture, processes, ADRs, FAQ), maintained in this repo and rendered natively in the dashboard theme. See [Documentation](#documentation). |
+| `/roadmap` | Product roadmap: hand-maintained directional workstreams for Nighthawk itself (Cardano availability, non-db-sync topology, SOC-2 assurance templates, fork watching, network agents, governance monitoring). Intentions, not dated commitments. |
 
 Theme toggle (dark/light) lives in the nav. Dark is the brand default; the choice persists in `localStorage` and respects the OS preference until you choose explicitly.
 
@@ -98,7 +99,7 @@ nighthawk/
 ├── app/                        # Routes only — no logic
 │   ├── layout.tsx              # Fonts, providers, nav, theme-init script
 │   ├── globals.css             # Theme tokens (dark/light CSS variables)
-│   ├── dashboard/ attestation/ reports/ diagnostic/ runbooks/[slug]/
+│   ├── dashboard/ attestation/ reports/ diagnostic/ roadmap/ runbooks/[slug]/
 ├── lib/                        # Pure domain logic (framework-free)
 │   ├── telemetry/              # types, feed parser, network configs, node classifier
 │   ├── state/                  # telemetry-reducer.ts — single pure state transition
@@ -107,6 +108,7 @@ nighthawk/
 │   ├── notify/                 # Discord alert engine (edge-trigger/dedup) + webhook payloads
 │   ├── reports/                # report model build + md/txt/json/csv renderers
 │   ├── runbooks/ diagnostic/   # manifest/loader, diagnostic tree data
+│   ├── roadmap/                # product roadmap data (static, hand-maintained)
 │   └── format.ts               # shared display formatters
 ├── providers/
 │   ├── TelemetryProvider.tsx   # WebSocket lifecycle → dispatch into reducer
@@ -116,7 +118,7 @@ nighthawk/
 │   ├── ui/                     # Badge, Stat, PageHeader primitives
 │   ├── layout/                 # SiteNav, ThemeToggle
 │   ├── notify/                 # NotifyMenu (bell icon webhook settings)
-│   ├── dashboard/ attestation/ reports/ runbooks/ diagnostic/
+│   ├── dashboard/ attestation/ reports/ roadmap/ runbooks/ diagnostic/
 └── content/runbooks/           # Runbook markdown (rendered via MDX)
 ```
 
