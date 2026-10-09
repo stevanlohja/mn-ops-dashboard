@@ -44,15 +44,6 @@ export default function SiteNav() {
               <Link href="/" aria-label="Nighthawk — home" className="flex items-center">
                 <NighthawkWordmark className="text-[13px]" />
               </Link>
-              <a
-                href="https://github.com/stevanlohja/mn-ops-dashboard"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Brought to you by Stev — mn-ops-dashboard on GitHub"
-                className="hidden md:inline whitespace-nowrap font-mono text-[10px] text-mn-muted border border-mn-border rounded-full px-2 py-0.5 transition-colors hover:border-mn-accent hover:text-mn-text"
-              >
-                Brought to you by Stev
-              </a>
             </div>
 
             <span data-tour="network" className="inline-flex shrink-0">
