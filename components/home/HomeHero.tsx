@@ -6,7 +6,6 @@ import { useTelemetry } from "@/providers/TelemetryProvider";
 import { NETWORKS } from "@/lib/telemetry/networks";
 import { formatBlockNumber, formatBlockTime } from "@/lib/format";
 import BlockPropagation, { BlockPulse } from "./BlockPropagation";
-import CoordinationBanner from "@/components/changes/CoordinationBanner";
 
 const MAX_RING_NODES = 24;
 
@@ -43,12 +42,13 @@ export default function HomeHero() {
         </span>
       </div>
 
-      <h1 className="text-3xl sm:text-5xl font-semibold text-mn-text text-center tracking-tight leading-tight max-w-3xl">
-        Midnight Network Operations
+      <h1 className="font-display text-3xl sm:text-5xl font-semibold text-mn-text text-center uppercase tracking-[0.22em] leading-tight max-w-3xl pl-[0.22em]">
+        Nighthawk
       </h1>
       <p className="text-mn-text-2 text-center mt-4 max-w-xl text-sm sm:text-base leading-relaxed">
-        Real-time block propagation across the federated validator set. Every pulse is a finalized
-        height rippling from its author to the network.
+        General observability for the core Midnight blockchain network. Real-time block propagation
+        across the federated validator set — every pulse a finalized height rippling from its author
+        to the network.
       </p>
 
       {/* ── Animation centerpiece with live block readout overlay ────────── */}
@@ -77,9 +77,6 @@ export default function HomeHero() {
         <HeroStat label="Block Time" value={formatBlockTime(summary?.avgBlockTime ?? null)} />
         <HeroStat label="Located Nodes" value={`${nodes.filter((n) => n.latitude != null).length}`} />
       </div>
-
-      {/* ── Coordination banner: in-flight network changes ───────────────── */}
-      <CoordinationBanner />
 
       {/* ── CTAs ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-center gap-3 mt-8">

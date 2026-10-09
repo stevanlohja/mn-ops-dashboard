@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Chakra_Petch } from "next/font/google";
 import SiteNav from "@/components/layout/SiteNav";
 import MaintainerBanner from "@/components/layout/MaintainerBanner";
 import TourOverlay from "@/components/tour/TourOverlay";
@@ -9,8 +9,8 @@ import { ThemeProvider, THEME_INIT_SCRIPT } from "@/providers/ThemeProvider";
 import { TourProvider } from "@/providers/TourProvider";
 import "./globals.css";
 
-// Inter (prose) + JetBrains Mono (labels, data, UI) — the two families of the
-// stevanlohja.com design system, so the dashboard reads as part of the same set.
+// Inter (prose) + JetBrains Mono (labels, data, UI), with Chakra Petch as the
+// Nighthawk display face — squarish stencil-tech for headings and brand chrome.
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -23,10 +23,16 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["300", "400", "500", "700"],
 });
 
+const chakraPetch = Chakra_Petch({
+  variable: "--font-chakra",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "PO Dash 2.0 — Midnight Network Operations",
+  title: "Nighthawk — Midnight Network Observability",
   description:
-    "Network health, validator attestation, report generation, diagnostics, and runbooks for Midnight Network operations",
+    "Network health, validator attestation, report generation, diagnostics, and runbooks for the core Midnight blockchain network",
 };
 
 export default function RootLayout({
@@ -38,7 +44,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${chakraPetch.variable} h-full antialiased`}
     >
       <head>
         {/* Apply persisted theme before first paint to avoid a flash */}

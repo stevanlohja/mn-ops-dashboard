@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTelemetry } from "@/providers/TelemetryProvider";
 import { NETWORKS, NETWORK_IDS, NetworkId, TELEMETRY_WEB_URL } from "@/lib/telemetry/networks";
-import { BASE_PATH } from "@/lib/basePath";
+import NighthawkWordmark from "@/components/ui/NighthawkWordmark";
 import ThemeToggle from "./ThemeToggle";
 import SettingsMenu from "./SettingsMenu";
 import TourLauncher from "./TourLauncher";
@@ -23,8 +23,6 @@ const PRIMARY_LINKS = [
 // Reference surfaces — grouped under a single "Resources" dropdown to keep the
 // nav row uncluttered.
 const RESOURCE_LINKS = [
-  { href: "/network-change", label: "Network Change" },
-  { href: "/roadmap", label: "Roadmap" },
   { href: "/diagnostic", label: "Diagnose" },
   { href: "/runbooks", label: "Runbooks" },
   { href: "/docs", label: "Docs" },
@@ -43,12 +41,8 @@ export default function SiteNav() {
         <div className="flex items-center justify-between h-14 gap-4">
           <div className="flex items-center gap-5 min-w-0">
             <div className="flex items-center gap-3 shrink-0">
-              <Link href="/" className="flex items-center">
-                <img
-                  src={`${BASE_PATH}/logos/mn-logo-horizontal.svg`}
-                  alt="Midnight"
-                  className="h-5 w-auto [[data-theme=light]_&]:invert"
-                />
+              <Link href="/" aria-label="Nighthawk — home" className="flex items-center">
+                <NighthawkWordmark className="text-[13px]" />
               </Link>
               <a
                 href="https://github.com/stevanlohja/mn-ops-dashboard"

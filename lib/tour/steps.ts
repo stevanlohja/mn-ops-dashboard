@@ -10,7 +10,7 @@
  * returning users are re-shown the updated walkthrough.
  */
 
-export const TOUR_STORAGE_KEY = "mn-tour-seen-v1";
+export const TOUR_STORAGE_KEY = "mn-tour-seen-v3";
 
 export interface TourStep {
   id: string;
@@ -23,8 +23,8 @@ export interface TourStep {
 export const TOUR_STEPS: TourStep[] = [
   {
     id: "welcome",
-    title: "Welcome to PO Dash",
-    body: "A quick 60-second tour of the Midnight Network operations dashboard — we'll point out where each key feature lives. Use Next, or press Esc to skip.",
+    title: "Welcome to Nighthawk",
+    body: "A quick 60-second tour of the Midnight network observability dashboard — we'll point out where each key feature lives. Use Next, or press Esc to skip.",
   },
   {
     id: "network",
@@ -60,7 +60,7 @@ export const TOUR_STEPS: TourStep[] = [
     id: "resources",
     target: '[data-tour="resources"]',
     title: "Resources",
-    body: "The network change board, the guided diagnostic tree, runbooks, and FNO docs all live under here.",
+    body: "The guided diagnostic tree, runbooks, and FNO docs all live under here.",
   },
   {
     id: "notify",

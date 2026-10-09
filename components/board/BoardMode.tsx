@@ -7,7 +7,7 @@ import { WsStatus } from "@/lib/telemetry/types";
 import { buildExecutiveMetrics } from "@/lib/executive/metrics";
 import { toGlobeMarkers } from "@/lib/executive/markers";
 import { buildAlerts } from "@/lib/health/health";
-import { BASE_PATH } from "@/lib/basePath";
+import NighthawkWordmark from "@/components/ui/NighthawkWordmark";
 import ValidatorGlobe from "@/components/executive/ValidatorGlobe";
 import { useMetricTrend } from "@/components/executive/useMetricTrend";
 import ResilienceGauge from "./ResilienceGauge";
@@ -117,8 +117,7 @@ export default function BoardMode() {
       {/* Header */}
       <header className="flex items-center justify-between shrink-0 px-2">
         <div className="flex items-center gap-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`${BASE_PATH}/logos/mn-logo-horizontal.svg`} alt="Midnight" className="h-[3.2vh] w-auto" />
+          <NighthawkWordmark className="text-[clamp(11px,1.5vh,15px)]" />
           <span className="font-mono text-[clamp(10px,1.3vh,13px)] text-mn-muted border border-mn-border rounded-full px-3 py-1 tracking-[0.3em]">
             BOARD
           </span>

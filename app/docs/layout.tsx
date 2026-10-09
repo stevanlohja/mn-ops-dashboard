@@ -2,7 +2,7 @@ import DocsSidebar from "@/components/docs/DocsSidebar";
 import { DOCS_MANIFEST } from "@/lib/docs/manifest";
 
 export const metadata = {
-  title: "Docs — PO Dash 2.0",
+  title: "Docs — Nighthawk",
 };
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {

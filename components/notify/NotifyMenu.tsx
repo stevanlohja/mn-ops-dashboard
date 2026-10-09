@@ -130,7 +130,7 @@ export default function NotifyMenu() {
                     </svg>
                   </span>
                   <span className="block text-[11px] text-mn-muted leading-snug mt-0.5">
-                    Midnight Network Operations announcements &amp; alerts via Notifi — Discord, Email, SMS, or Telegram.
+                    Midnight network announcements &amp; alerts via Notifi — Discord, Email, SMS, or Telegram.
                   </span>
                 </span>
               </a>

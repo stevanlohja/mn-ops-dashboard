@@ -7,52 +7,56 @@
    ──────────────────────────────────────────────────────────────────────────── */
 
 /* ── Palette provenance ────────────────────────────────────────────────────────
-   Drawn from the stevanlohja.com design system ("technical dossier"): dark-first,
-   monospace-forward, square geometry, hairline rules, drafting grid. Severity
-   colours (p0–p2, escalate) are semantic, not brand — they stay as they were.
+   Nighthawk "tactical HUD" refresh: gunmetal / steel surfaces with an ice-cyan
+   phosphor accent and stencil display face. Severity colours (p0–p2, escalate,
+   ok) are semantic, not brand — they are deliberately left as they were so a
+   warning never reads as chrome and chrome never reads as a status.
+   Accent is cyan rather than the obvious military amber/green precisely
+   because amber collides with --mn-p3 and green collides with --mn-ok.
    ──────────────────────────────────────────────────────────────────────────── */
 
 :root,
 [data-theme="dark"] {
-  --mn-bg:        #07080a;                    /* portfolio --bg */
-  --mn-surface:   #0c0e12;                    /* portfolio --bg-1 (cards, nav) */
-  --mn-surface-2: #11141a;                    /* portfolio --bg-2 (inputs, hover targets) */
-  --mn-border:    #1c2028;                    /* portfolio --line (hairline rules) */
-  --mn-accent:    #58a6ff;                    /* portfolio --accent (interactive) */
-  --mn-accent-2:  #79c0ff;                    /* lighter accent - links/labels on dark */
-  --mn-text:      #e6e9ef;                    /* portfolio --fg */
-  --mn-text-2:    #a3abb9;                    /* portfolio --fg-1 (body / prose) */
-  --mn-muted:     #6b7385;                    /* portfolio --fg-2 (secondary / labels) */
-  --mn-on-accent: #06101c;                    /* portfolio --accent-fg (text on accent bg) */
-  --mn-ring:      rgba(88, 166, 255, .5);     /* focus ring */
+  --mn-bg:        #05080a;                    /* gunmetal black (page) */
+  --mn-surface:   #0a0e12;                    /* armour plate (cards, nav) */
+  --mn-surface-2: #10151b;                    /* raised panel (inputs, hover) */
+  --mn-border:    #171e27;                    /* quiet hairline */
+  --mn-accent:    #38c6f4;                    /* HUD cyan (interactive) */
+  --mn-accent-2:  #7fe3ff;                    /* lighter cyan — links/labels */
+  --mn-text:      #e8edf3;                    /* primary text */
+  --mn-text-2:    #a7b2c0;                    /* body / prose */
+  --mn-muted:     #6d7889;                    /* secondary / labels */
+  --mn-on-accent: #04121a;                    /* text on accent fills */
+  --mn-ring:      rgba(56, 198, 244, .5);     /* focus ring */
 
-  /* Severity / operational colours */
+  /* Severity / operational colours — semantic, unchanged by the rebrand */
   --mn-p0:        #f43f5e;                    /* catastrophic */
   --mn-p1:        #ef4444;                    /* critical */
   --mn-p2:        #f97316;                    /* high */
-  --mn-p3:        #d29922;                    /* medium / warning (portfolio --warn) */
-  --mn-ok:        #3fb950;                    /* healthy (portfolio --ok) */
+  --mn-p3:        #d29922;                    /* medium / warning */
+  --mn-ok:        #3fb950;                    /* healthy */
   --mn-escalate:  #a855f7;                    /* escalate */
 }
 
 [data-theme="light"] {
-  --mn-bg:        #f5f6f8;                    /* portfolio --bg (blueprint paper) */
-  --mn-surface:   #ffffff;                    /* portfolio --bg-1 */
-  --mn-surface-2: #eef0f3;                    /* portfolio --bg-2 */
-  --mn-border:    #d7dbe2;                    /* portfolio --line */
-  --mn-accent:    #0969da;                    /* portfolio --accent */
-  --mn-accent-2:  #0550ae;                    /* darker accent - links on paper */
-  --mn-text:      #12151b;                    /* portfolio --fg */
-  --mn-text-2:    #454c59;                    /* portfolio --fg-1 */
-  --mn-muted:     #687083;                    /* portfolio --fg-2 */
-  --mn-on-accent: #ffffff;                    /* portfolio --accent-fg */
-  --mn-ring:      rgba(9, 105, 218, .35);     /* focus ring */
+  --mn-bg:        #eef1f4;                    /* field steel (page) */
+  --mn-surface:   #ffffff;                    /* plate */
+  --mn-surface-2: #e7ebef;                    /* raised panel */
+  --mn-border:    #d2d8df;                    /* quiet hairline */
+  --mn-accent:    #0b6d8a;                    /* deep HUD cyan */
+  --mn-accent-2:  #07546b;                    /* darker cyan — links on paper */
+  --mn-text:      #10141a;                    /* primary text */
+  --mn-text-2:    #414a55;                    /* body / prose */
+  --mn-muted:     #636e7d;                    /* secondary / labels */
+  --mn-on-accent: #ffffff;                    /* text on accent fills */
+  --mn-ring:      rgba(11, 109, 138, .35);    /* focus ring */
 
+  /* Severity / operational colours — semantic, unchanged by the rebrand */
   --mn-p0:        #be123c;
   --mn-p1:        #dc2626;
   --mn-p2:        #ea580c;
-  --mn-p3:        #9a6700;                    /* medium / warning (portfolio --warn) */
-  --mn-ok:        #1a7f37;                    /* healthy (portfolio --ok) */
+  --mn-p3:        #9a6700;                    /* medium / warning */
+  --mn-ok:        #1a7f37;                    /* healthy */
   --mn-escalate:  #7e22ce;
 }
 
@@ -61,16 +65,18 @@
   --color-foreground: var(--mn-text);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains);
+  --font-display: var(--font-chakra);
 
-  /* Square geometry: the portfolio uses 2–3px corners, not pills. Overriding
-     the radius tokens restyles every rounded-* utility in one place
+  /* Softer edges: still reads square-ish and tactical, but corners are
+     rounded (4–16px) instead of the original 2–3px blades. Overriding the
+     radius tokens restyles every rounded-* utility in one place
      (rounded-full is a literal calc(), so dots/badges stay round). */
-  --radius-sm: 2px;
-  --radius-md: 2px;
-  --radius-lg: 3px;
-  --radius-xl: 3px;
-  --radius-2xl: 3px;
-  --radius-3xl: 4px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 16px;
 
   --color-mn-bg:        var(--mn-bg);
   --color-mn-surface:   var(--mn-surface);
@@ -111,6 +117,21 @@ body {
 :focus-visible {
   outline: 2px solid var(--mn-ring);
   outline-offset: 2px;
+}
+
+/* ── Display face ───────────────────────────────────────────────────────────
+   Chakra Petch (squarish stencil-tech) on headings and brand chrome; prose
+   stays on Inter and data/hashes stay on JetBrains Mono. Declared inside
+   `@layer base` so it loses to Tailwind's `font-*` utilities (the utilities
+   layer comes after base) — a heading that explicitly asks for `font-mono`
+   (e.g. a node name in the detail drawer) keeps it. */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-chakra), var(--font-inter), system-ui, sans-serif;
+  }
 }
 
 ::selection {
@@ -236,14 +257,14 @@ body {
   background: var(--mn-surface-2);
   color: var(--mn-accent-2);
   padding: 0.15em 0.4em;
-  border-radius: 4px;
+  border-radius: 6px;
   border: 1px solid var(--mn-border);
 }
 
 .prose-runbook pre {
   background: var(--mn-surface);
   border: 1px solid var(--mn-border);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 1rem 1.25rem;
   overflow-x: auto;
   margin: 1.25rem 0;
@@ -327,7 +348,7 @@ body {
 .prose-runbook .admonition {
   margin: 1.25rem 0;
   padding: 0.75rem 1rem;
-  border-radius: 6px;
+  border-radius: 12px;
   border-left: 3px solid var(--mn-accent-2);
   background: var(--mn-surface-2);
   font-size: 0.95em;

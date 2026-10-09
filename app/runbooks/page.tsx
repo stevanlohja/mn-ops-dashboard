@@ -2,7 +2,7 @@ import RunbookList from "@/components/runbooks/RunbookList";
 import { RUNBOOK_MANIFEST } from "@/lib/runbooks/manifest";
 
 export const metadata = {
-  title: "Runbooks — PO Dash 2.0",
+  title: "Runbooks — Nighthawk",
 };
 
 export default function RunbooksPage() {

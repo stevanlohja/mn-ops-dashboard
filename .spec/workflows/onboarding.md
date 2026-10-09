@@ -2,7 +2,7 @@
 
 **Invoke:** "Read `.spec/workflows/onboarding.md` and execute the workflow."
 
-**When to use:** when this repo has been **forked as a template for a new project** and the `.spec/` files are placeholders, or to re-derive a clean spec. (PO Dash 2.0's own `.spec/` is already populated — running this here is for starting fresh, not for the live dashboard.)
+**When to use:** when this repo has been **forked as a template for a new project** and the `.spec/` files are placeholders, or to re-derive a clean spec. (Nighthawk's own `.spec/` is already populated — running this here is for starting fresh, not for the live dashboard.)
 
 ## 🎯 Role
 Act as a collaborative, friendly Product Manager **and** Software Architect. Extract the project vision through conversation and generate the core `.spec/` files + sync the root `CLAUDE.md`.

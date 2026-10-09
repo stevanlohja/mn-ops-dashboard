@@ -49,7 +49,7 @@ export function buildAlertPayload(input: {
 }): DiscordPayload {
   const { network, outbound, resolved, mention, now } = input;
   const label = NETWORKS[network].label;
-  const footer = { text: `PO Dash 2.0 · ${label}` };
+  const footer = { text: `Nighthawk · ${label}` };
   const timestamp = new Date(now).toISOString();
 
   const embeds: DiscordEmbed[] = [];
@@ -109,7 +109,7 @@ export function buildAlertPayload(input: {
 export function buildTestPayload(network: NetworkId, mention: string, now: number): DiscordPayload {
   const label = NETWORKS[network].label;
   return {
-    content: [mention.trim(), `Test message from PO Dash 2.0 (${label})`]
+    content: [mention.trim(), `Test message from Nighthawk (${label})`]
       .filter(Boolean)
       .join(" — "),
     embeds: [
@@ -118,7 +118,7 @@ export function buildTestPayload(network: NetworkId, mention: string, now: numbe
         description:
           "Discord alerting is wired up. You will be pinged here on degradation or consensus failures.",
         color: COLOR_RESOLVED,
-        footer: { text: `PO Dash 2.0 · ${label}` },
+        footer: { text: `Nighthawk · ${label}` },
         timestamp: new Date(now).toISOString(),
       },
     ],

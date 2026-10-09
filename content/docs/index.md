@@ -1,6 +1,6 @@
-# Midnight Network Operations Docs
+# Midnight Network Observability Docs
 
-Operational documentation for the Midnight Network operations dashboard —
+Operational documentation for the Nighthawk observability dashboard —
 onboarding guides for Federated Node Operators (FNOs), architecture decisions,
 and operational procedures. These pages are maintained in this repository and
 render natively in the dashboard theme.

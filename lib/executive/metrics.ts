@@ -5,17 +5,11 @@ import { evaluateHealth, Severity, worstSeverity } from "@/lib/health/health";
 
 /**
  * Executive-suite rollups. Every metric here is derived from live telemetry
- * (nodes + attestation records) except the explicitly-labelled planning
- * assumption in SLA — there is no rewards or historical persistence feed, so
- * that target is an operator-supplied figure, not a fact.
+ * (nodes + attestation records) — there is no rewards, contractual-target, or
+ * historical persistence feed, so no availability target/threshold is implied.
  *
  * Pure functions, no React, unit-testable.
  */
-
-export const SLA = {
-  /** Contracted validator-set availability target. */
-  availabilityTargetPct: 99.5,
-};
 
 // ── Generic helpers ─────────────────────────────────────────────────────────
 
@@ -56,29 +50,24 @@ function distribution(values: string[], fallback = "Unknown"): Share[] {
     .sort((a, b) => b.count - a.count);
 }
 
-// ── Availability (vs SLA) ───────────────────────────────────────────────────
+// ── Availability ─────────────────────────────────────────────────────────────
 
 export interface Availability {
   online: number;
   expected: number | null;
   /** online / expected, capped at 100. Null on networks with no fixed set. */
   pct: number | null;
-  /** Margin above (positive) or below (negative) the SLA target, in points. */
-  slaMargin: number | null;
-  meetsSla: boolean | null;
 }
 
 function availability(onlineValidators: number, expected: number | null): Availability {
   if (expected === null || expected === 0) {
-    return { online: onlineValidators, expected, pct: null, slaMargin: null, meetsSla: null };
+    return { online: onlineValidators, expected, pct: null };
   }
   const pct = Math.min(100, (onlineValidators / expected) * 100);
   return {
     online: onlineValidators,
     expected,
     pct,
-    slaMargin: pct - SLA.availabilityTargetPct,
-    meetsSla: pct >= SLA.availabilityTargetPct,
   };
 }
 
@@ -169,11 +158,11 @@ export function buildExecutiveMetrics(
   const domains: DomainStatus[] = [
     {
       key: "availability",
-      label: "Availability / SLA",
+      label: "Availability",
       severity: health.validatorCount,
       headline:
         avail.pct !== null
-          ? `${avail.online}/${avail.expected} online · ${avail.pct.toFixed(1)}% vs ${SLA.availabilityTargetPct}% SLA`
+          ? `${avail.online}/${avail.expected} online · ${avail.pct.toFixed(1)}%`
           : `${avail.online} validators online`,
     },
     {

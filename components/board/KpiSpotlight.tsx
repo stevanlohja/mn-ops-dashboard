@@ -1,6 +1,6 @@
 "use client";
 
-import { ExecutiveMetrics, SLA } from "@/lib/executive/metrics";
+import { ExecutiveMetrics, SEVERITY_RAG } from "@/lib/executive/metrics";
 import { NETWORKS } from "@/lib/telemetry/networks";
 
 interface Slide {
@@ -13,6 +13,7 @@ interface Slide {
 /** Build the rotating set of headline slides from the live metrics. */
 function buildSlides(m: ExecutiveMetrics): Slide[] {
   const avail = m.availability;
+  const availSeverity = m.domains.find((d) => d.key === "availability")?.severity;
   const net = NETWORKS[m.network];
   const topClientPct = Math.round(m.dominantVersionShare * 100);
 
@@ -22,9 +23,10 @@ function buildSlides(m: ExecutiveMetrics): Slide[] {
       value: avail.pct != null ? `${avail.pct.toFixed(1)}%` : `${avail.online}`,
       sub:
         avail.pct != null
-          ? `${avail.online}/${avail.expected} online · SLA ${SLA.availabilityTargetPct}%`
+          ? `${avail.online}/${avail.expected} online`
           : `${avail.online} validators online`,
-      accent: avail.meetsSla == null ? "text-mn-text" : avail.meetsSla ? "text-mn-ok" : "text-mn-p1",
+      accent:
+        avail.pct == null || !availSeverity ? "text-mn-text" : SEVERITY_RAG[availSeverity].text,
     },
     {
       label: "Network Model",

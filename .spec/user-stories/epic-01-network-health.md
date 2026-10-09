@@ -6,7 +6,7 @@
 
 ## Story 1.1 — At-a-glance network status
 
-> **As a** Protocol Operations Manager
+> **As a** Midnight network observer
 > **I want** the current best block, finalized block, finality gap, and average block time on one screen
 > **So that** I can tell within seconds whether the network is producing and finalizing blocks.
 

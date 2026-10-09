@@ -1,7 +1,7 @@
 import BoardMode from "@/components/board/BoardMode";
 
 export const metadata = {
-  title: "Board — PO Dash 2.0",
+  title: "Board — Nighthawk",
 };
 
 export default function BoardPage() {

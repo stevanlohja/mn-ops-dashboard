@@ -1,6 +1,6 @@
 # `.spec/` — Source of Truth
 
-This directory is the authoritative specification for **PO Dash 2.0**. It is written for AI assistants first (deterministic, parseable markdown) and humans second. The root [`../CLAUDE.md`](../CLAUDE.md) is the *router*; this directory is the *reference library*.
+This directory is the authoritative specification for **Nighthawk**. It is written for AI assistants first (deterministic, parseable markdown) and humans second. The root [`../CLAUDE.md`](../CLAUDE.md) is the *router*; this directory is the *reference library*.
 
 ## How to use this directory
 

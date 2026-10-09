@@ -1,10 +1,10 @@
-# PO Dash 2.0 — AI Development Guide
+# Nighthawk — AI Development Guide
 
-Welcome, Assistant. This file is the always-loaded operational guide for the **Midnight Network operations dashboard** (`po_dash_2.0`).
+Welcome, Assistant. This file is the always-loaded operational guide for the **Midnight network observability dashboard** (`nighthawk`).
 
 > **CRITICAL:** The complete specification — purpose, architecture, standards, and user stories — lives in [`.spec/`](.spec/). **Read the relevant `.spec/` file(s) before writing code or proposing architecture changes.** Use the router below to pull in only what the task needs (don't load the whole directory).
 
-This is an internal, **100% client-side** Next.js app that visualizes the live Substrate telemetry feed. There is no backend, database, or API key.
+This is a **100% client-side** Next.js app that visualizes the live Substrate telemetry feed. There is no backend, database, or API key.
 
 ---
 

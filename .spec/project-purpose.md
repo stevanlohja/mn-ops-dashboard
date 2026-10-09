@@ -2,19 +2,19 @@
 
 ## Elevator pitch
 
-PO Dash 2.0 is an **operations dashboard for monitoring the health of the Midnight network** and its Federated Node Operators (FNOs). It reads the public Substrate telemetry feed live in the browser and turns it into network health, per-validator attestation, exportable reports, incident diagnostics, and an at-a-glance executive/board view. It runs entirely client-side — no backend, no database, no API keys — so it deploys anywhere static and exposes no secrets.
+**Nighthawk** is a **general observability dashboard for the core Midnight blockchain network** and the Federated Node Operators (FNOs) that run it. It reads the public Substrate telemetry feed live in the browser and turns it into network health, per-validator attestation, exportable reports, incident diagnostics, and an at-a-glance overview/board view. It runs entirely client-side — no backend, no database, no API keys — so it deploys anywhere static and exposes no secrets.
 
 ## North star
 
-> Give the Protocol Operations team and leadership a **truthful, real-time, single-pane** view of network health and validator behavior — fast enough to catch a consensus or finality problem before it escalates, and honest about the limits of what telemetry can prove.
+> Give **anyone watching the Midnight network** a **truthful, real-time, single-pane** view of network health and validator behavior — fast enough to catch a consensus or finality problem before it escalates, and honest about the limits of what telemetry can prove.
 
 ## Primary users / personas
 
-- **Protocol Operations Manager** (primary): drives coordinated changes, watches finality/consensus, generates reports, fields FNO issues.
-- **Leadership / executives**: want a glanceable "is the network healthy?" read — the Executive overview and Board (kiosk) mode.
-- **Ops / DevRel teammates**: triage incidents via the diagnostic tree and runbooks, reference FNO docs.
+- **Node operator / FNO** (primary): watches finality/consensus, triages incidents, generates reports, fields FNO issues.
+- **Independent observer**: wants a glanceable "is the network healthy?" read — the Overview (`/executive`) and Board (kiosk) mode.
+- **Documentation reader**: uses the rendered FNO docs and runbooks as reference.
 
-The audience is technical and time-pressured. Lead with signal; never bury the one number that matters.
+The audience is technical, independent, and time-pressured. Lead with signal; never bury the one number that matters.
 
 ## Networks
 
@@ -27,18 +27,17 @@ Mainnet, Preprod, Preview — switchable in the nav. Thresholds (expected valida
 - Report generation (Markdown / Notifi-safe plain text / JSON / CSV) from a frozen snapshot.
 - Discord webhook alerting (browser → webhook, edge-triggered).
 - Incident diagnostic tree + rendered FNO runbooks + vendored ops docs.
-- Executive overview and full-screen Board (kiosk) mode.
-- Coordinated-change status board (`/network-change`) and a forward-looking roadmap calendar (`/roadmap`) — manually-maintained, clearly-labeled planning views (not telemetry history), with the change board projected onto the calendar automatically.
-- Dark/light theming on the Midnight brand palette.
+- Overview (`/executive`) and full-screen Board (kiosk) mode.
+- Dark/light theming on the dashboard's tactical palette.
 
 ## OUT of scope (guardrails against creep)
 
 - **No backend, server state, database, or authenticated API.** If a feature needs one, it does not belong here — raise it instead of adding a server.
 - **No historical/time-series persistence.** Telemetry is session-scoped (only capped in-memory buffers). Do not imply multi-day trends without an explicit, labeled persistence design.
 - **No secrets in the client.** No private keys, no privileged API tokens.
-- **Not the source of truth for ops data.** Operator identities, contracts, IPs, and runbook *content* live in the `midnight-network-ops` repo / internal systems. This app *visualizes* and *links*, it doesn't own that data.
+- **Not the source of truth for ops data.** Operator identities, IPs, and runbook *content* live upstream (e.g. the `midnight-network-ops` repo), not in this app. This app *visualizes* and *links*, it doesn't own that data.
 - **Attestation is not consensus-grade proof.** It attributes a block to the first node to report a height — good for spotting silent stoppage, not for slashing/rewards decisions.
 
 ## Definition of success
 
-A teammate can open the dashboard and, within seconds, know whether the network is healthy, which validators are misbehaving, and where the matching runbook is — and can export a leadership-ready snapshot without touching a terminal.
+Anyone can open the dashboard and, within seconds, know whether the network is healthy, which validators are misbehaving, and where the matching runbook is — and can export a shareable snapshot without touching a terminal.

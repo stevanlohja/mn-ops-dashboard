@@ -22,8 +22,6 @@ content/     MDX content (runbooks, docs). Rendered, not logic.
 - `reports/` — report model build + md/txt/json/csv renderers.
 - `runbooks/`, `docs/` — manifest + static import registries for MDX.
 - `executive/` — `metrics.ts` (executive rollups), `markers.ts` (globe markers).
-- `changes/` — coordinated-change status model + curated seed data (`data.ts`), telemetry-derived rollout readiness (`readiness.ts`), active-change selector.
-- `roadmap/` — planning-calendar domain: timezone-safe UTC date math (`date.ts`), event types + `mn-*` style maps (`types.ts`), Network-Change projection (`derive.ts`), hand-authored events (`events.ts`), the generated monthly FNO report-deadline series (`reporting.ts`), merge/sort/default-month (`select.ts`), and the month-grid + Gantt-style lane packing for multi-day spanning bars (`layout.ts`).
 - `format.ts` — shared display formatters.
 
 ### `providers/`
@@ -52,13 +50,13 @@ wss telemetry feed
 - **Reports are a frozen model.** `buildReport()` snapshots live state into a serializable `ReportModel`; every renderer (md/txt/json/csv) is a pure function of that snapshot — so exports never read live state mid-render.
 - **Theming via CSS variables.** Components only reference `mn-*` tokens, which resolve through `data-theme`-scoped variables. Every component is theme-aware with no per-component work; an inline head script applies the persisted theme before first paint (no flash).
 - **Thresholds parameterized per network.** Expected validator count and peer target live in `lib/telemetry/networks.ts`, not hardcoded in UI.
-- **The expected set is a named roster, not a number.** `lib/telemetry/roster.ts` lists the validators each network *should* have (mainnet: 13, provenance and verification date in the file); `networks.ts` derives `expectedValidators` from its length so the count and the roll-call can never disagree. Counting only what the feed shows makes a vanished validator invisible — "12/12 online" — so anything that reports a denominator (readiness gauge, node tables, alerts) takes it from the roster. Telemetry names only in that file: no operator entities, no overlay addresses, no endpoints. A roster miss is reported as **not reporting to telemetry**, never asserted as a down node.
+- **The expected set is a named roster, not a number.** `lib/telemetry/roster.ts` lists the validators each network *should* have (mainnet: 13, provenance and verification date in the file); `networks.ts` derives `expectedValidators` from its length so the count and the roll-call can never disagree. Counting only what the feed shows makes a vanished validator invisible — "12/12 online" — so anything that reports a denominator (node tables, alerts) takes it from the roster. Telemetry names only in that file: no operator entities, no overlay addresses, no endpoints. A roster miss is reported as **not reporting to telemetry**, never asserted as a down node.
 - **Client-only, no server state.** Deploys to any static/serverless host. Persistence is `localStorage`. Browser-only APIs are feature-detected.
 - **Configurable feed endpoints with failover.** The telemetry source is an ordered list (default `wss://telemetry.shielded.tools/feed/`), editable via the nav settings gear and persisted to `localStorage`. `TelemetryProvider`'s connect loop rotates to the next endpoint on each failed connection, so the dashboard fails over to a backup provider if the primary is down.
 
 ## Routes (`app/`)
 
-`/` (home) · `/executive` · `/dashboard` · `/attestation` · `/reports` · `/network-change` · `/roadmap` · `/diagnostic` · `/runbooks` + `/runbooks/[slug]` · `/docs` + `/docs/[...slug]` · `/board` (full-screen kiosk; nav chrome suppressed).
+`/` (home) · `/executive` · `/dashboard` · `/attestation` · `/reports` · `/diagnostic` · `/runbooks` + `/runbooks/[slug]` · `/docs` + `/docs/[...slug]` · `/board` (full-screen kiosk; nav chrome suppressed).
 
 ## 🚫 Banned practices
 

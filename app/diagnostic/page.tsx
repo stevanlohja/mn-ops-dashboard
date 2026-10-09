@@ -2,7 +2,7 @@ import DiagnosticTree from "@/components/diagnostic/DiagnosticTree";
 import { TELEMETRY_WEB_URL } from "@/lib/telemetry/networks";
 
 export const metadata = {
-  title: "Diagnostic — PO Dash 2.0",
+  title: "Diagnostic — Nighthawk",
 };
 
 export default function DiagnosticPage() {

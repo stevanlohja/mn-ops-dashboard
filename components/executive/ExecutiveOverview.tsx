@@ -6,12 +6,10 @@ import { NETWORKS } from "@/lib/telemetry/networks";
 import {
   buildExecutiveMetrics,
   SEVERITY_RAG,
-  SLA,
   Share,
   DomainStatus,
 } from "@/lib/executive/metrics";
 import { toGlobeMarkers } from "@/lib/executive/markers";
-import NetworkChangeThumbnail from "@/components/changes/NetworkChangeThumbnail";
 import PageHeader from "@/components/ui/PageHeader";
 import ConnectionBadge from "@/components/dashboard/ConnectionBadge";
 import ValidatorGlobe from "./ValidatorGlobe";
@@ -24,6 +22,7 @@ export default function ExecutiveOverview() {
 
   const resilienceTrend = useMetricTrend(m.resilienceScore);
   const availTrend = useMetricTrend(m.availability.pct);
+  const availSeverity = m.domains.find((d) => d.key === "availability")?.severity;
 
   const isBootstrapping = nodes.length === 0 && wsStatus !== "error";
 
@@ -94,19 +93,16 @@ export default function ExecutiveOverview() {
             value={m.availability.pct != null ? `${m.availability.pct.toFixed(1)}%` : `${m.availability.online}`}
             sub={
               m.availability.pct != null
-                ? `${m.availability.online}/${m.availability.expected} online · SLA ${SLA.availabilityTargetPct}%`
+                ? `${m.availability.online}/${m.availability.expected} online`
                 : "No fixed set on this network"
             }
             severityText={
-              m.availability.meetsSla == null
+              m.availability.pct == null || !availSeverity
                 ? "text-mn-muted"
-                : m.availability.meetsSla
-                ? "text-mn-ok"
-                : "text-mn-p1"
+                : SEVERITY_RAG[availSeverity].text
             }
             trend={availTrend}
           />
-          <NetworkChangeThumbnail />
         </div>
       </div>
 
