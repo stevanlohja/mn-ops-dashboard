@@ -53,7 +53,11 @@ export default function HomeHero() {
 
       {/* ── Animation centerpiece with live block readout overlay ────────── */}
       <div className="relative w-full max-w-2xl aspect-square sm:aspect-[16/11] mt-6">
-        <BlockPropagation nodeNames={nodeNames} latest={latest} />
+        <BlockPropagation
+          nodeNames={nodeNames}
+          latest={latest}
+          blockTimeMs={summary?.avgBlockTime ?? null}
+        />
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span className="font-mono text-[10px] uppercase tracking-widest text-mn-muted">Best Block</span>
           <span className="font-mono text-2xl sm:text-3xl font-semibold text-mn-text tabular-nums">
