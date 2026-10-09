@@ -25,11 +25,20 @@ export function NighthawkSymbol({ className = "" }: { className?: string }) {
 }
 
 /** Symbol + stencil wordmark. Used in the nav and the board kiosk header. */
-export default function NighthawkWordmark({ className = "" }: { className?: string }) {
+export default function NighthawkWordmark({
+  className = "",
+  labelClassName = "",
+}: {
+  className?: string;
+  /** Extra classes for the "Nighthawk" text (e.g. collapse it on phones). */
+  labelClassName?: string;
+}) {
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
       <NighthawkSymbol className="h-[1.4em] w-[1.4em] shrink-0 text-mn-accent" />
-      <span className="font-display font-semibold uppercase tracking-[0.28em] leading-none">
+      <span
+        className={`font-display font-semibold uppercase tracking-[0.28em] leading-none ${labelClassName}`}
+      >
         Nighthawk
       </span>
     </span>

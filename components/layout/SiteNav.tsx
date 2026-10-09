@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTelemetry } from "@/providers/TelemetryProvider";
@@ -38,11 +38,14 @@ export default function SiteNav() {
   return (
     <nav className="border-b border-mn-border bg-mn-surface sticky top-0 z-50 no-print">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14 gap-4">
-          <div className="flex items-center gap-5 min-w-0">
+        <div className="flex items-center justify-between h-14 gap-2">
+          <div className="flex items-center gap-4 min-w-0">
             <div className="flex items-center gap-3 shrink-0">
               <Link href="/" aria-label="Nighthawk — home" className="flex items-center">
-                <NighthawkWordmark className="text-[13px]" />
+                {/* Label collapses below sm so the centered trigger never
+                    collides with the sides on narrow phones; the symbol alone
+                    still links home. */}
+                <NighthawkWordmark className="text-[13px]" labelClassName="hidden sm:inline" />
               </Link>
             </div>
 
@@ -72,12 +75,11 @@ export default function SiteNav() {
               </span>
             </div>
 
-            {/* Mobile nav (below lg): all links fold into one menu so the primary
-                links are never crushed into a scroll sliver behind Resources. */}
-            <div className="lg:hidden">
-              <MobileNavMenu pathname={pathname} />
-            </div>
           </div>
+
+          {/* Centered compact trigger + menu (below lg). `key` remounts it per
+              route so navigation resets the open state without an effect. */}
+          <NavBarMenu key={pathname} pathname={pathname} />
 
           <div className="flex items-center gap-3 shrink-0">
             <a
@@ -267,73 +269,163 @@ function ResourcesMenu({ pathname }: { pathname: string }) {
   );
 }
 
-// Single hamburger menu for narrow screens (below lg). Folds the primary links
-// and the Resources group into one dropdown so nothing overflows the nav row.
-function MobileNavMenu({ pathname }: { pathname: string }) {
+// ── Centered hamburger menu — compact navigation (below lg) ──────────────────
+//
+// The trigger sits in the middle of the nav bar: two lines that slide
+// together and rotate into an X when open, revealing a clearly-backgrounded
+// panel below the bar (the page dims behind it, so the menu is unmissable).
+// Menu-button semantics: aria-haspopup/expanded, Escape closes and restores
+// focus to the trigger, outside click and route changes dismiss it, and every
+// animated layer is disabled under prefers-reduced-motion.
+
+// One icon per destination — 24-grid strokes, currentColor, so each row picks
+// up its active/inactive token automatically.
+const MENU_ICONS: Record<string, React.ReactNode> = {
+  "/executive": ( // gauge
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 17a8 8 0 1 1 16 0" />
+      <path d="M12 17l4-4" />
+    </svg>
+  ),
+  "/dashboard": ( // ECG pulse
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 12h4l2.5-6 4 12L16 12h5" />
+    </svg>
+  ),
+  "/attestation": ( // shield + check
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 3l7 3v5.5c0 4.2-2.9 7.2-7 8.5-4.1-1.3-7-4.3-7-8.5V6l7-3z" />
+      <path d="M9 12l2.2 2.2 4.5-4.5" />
+    </svg>
+  ),
+  "/reports": ( // document
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6.5 3.5h7l4 4v13h-11z" />
+      <path d="M13.5 3.5v4h4" />
+      <path d="M9.5 12h5M9.5 15.5h5" />
+    </svg>
+  ),
+  "/diagnostic": ( // crosshair
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="6.5" />
+      <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" />
+    </svg>
+  ),
+  "/runbooks": ( // notebook
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M7 3.5h10v17H7z" />
+      <path d="M10.2 3.5v17" />
+      <path d="M12.5 8h3.5M12.5 11.5h3.5M12.5 15h2.5" />
+    </svg>
+  ),
+  "/docs": ( // open book
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 6.8C10.4 5.3 8.2 4.6 4.5 4.6v12.6c3.7 0 5.9 0.7 7.5 2.2 1.5-1.5 3.7-2.2 7.5-2.2V4.6c-3.7 0-5.9 0.7-7.5 2.2z" />
+      <path d="M12 6.8v12.6" />
+    </svg>
+  ),
+};
+
+// The menu shows the same two groups the desktop nav does.
+const MENU_GROUPS: { label: string; items: { href: string; label: string }[] }[] = [
+  { label: "Navigate", items: PRIMARY_LINKS },
+  { label: "Resources", items: RESOURCE_LINKS },
+];
+
+function NavBarMenu({ pathname }: { pathname: string }) {
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  // Route changes reset the menu via a remount at the call site (`key`), so
+  // there is deliberately no pathname effect here — this repo bans
+  // setState-in-effect. Escape closes and hands focus back to the trigger.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   return (
-    <div className="relative">
+    <div className="relative flex min-w-0 flex-1 items-center justify-center self-stretch lg:hidden">
+      {/* Dismiss layer — dims the page so the panel reads as the obvious
+          foreground surface (same z-40 pattern the other menus use). */}
+      {open && (
+        <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden="true" />
+      )}
+
       <button
+        ref={triggerRef}
+        type="button"
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={open ? "Close navigation menu" : "Open navigation menu"}
-        className="flex h-8 w-8 items-center justify-center rounded-full border border-mn-border text-mn-muted transition-colors hover:bg-mn-surface-2 hover:text-mn-text"
+        className={`relative z-50 flex h-9 w-9 items-center justify-center rounded-full border transition-colors motion-reduce:transition-none ${
+          open
+            ? "border-mn-accent/50 text-mn-accent"
+            : "border-mn-border text-mn-text hover:bg-mn-surface-2"
+        }`}
       >
-        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d={open ? "M6 6l12 12M18 6L6 18" : "M4 7h16M4 12h16M4 17h16"}
+        {/* Two lines that slide together and rotate into an X. */}
+        <span className="relative block h-5 w-5" aria-hidden="true">
+          <span
+            className={`absolute left-0 top-[5px] h-[2px] w-full rounded-full bg-current transition-all duration-300 ease-out motion-reduce:transition-none ${
+              open ? "translate-y-[4px] rotate-45" : ""
+            }`}
           />
-        </svg>
+          <span
+            className={`absolute left-0 top-[13px] h-[2px] w-full rounded-full bg-current transition-all duration-300 ease-out motion-reduce:transition-none ${
+              open ? "-translate-y-[4px] -rotate-45" : ""
+            }`}
+          />
+        </span>
       </button>
 
       {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div
-            role="menu"
-            className="absolute left-0 top-full z-50 mt-2 flex w-56 flex-col gap-0.5 rounded-xl border border-mn-border bg-mn-surface p-1.5 shadow-xl"
-          >
-            {PRIMARY_LINKS.map((l) => (
-              <MobileNavItem
-                key={l.href}
-                href={l.href}
-                label={l.label}
-                active={pathname.startsWith(l.href)}
-                onNavigate={() => setOpen(false)}
-              />
-            ))}
-            <div className="my-1 border-t border-mn-border" />
-            <span className="px-2.5 pb-0.5 pt-1 text-[10px] font-semibold uppercase tracking-wider text-mn-muted">
-              Resources
-            </span>
-            {RESOURCE_LINKS.map((l) => (
-              <MobileNavItem
-                key={l.href}
-                href={l.href}
-                label={l.label}
-                active={pathname.startsWith(l.href)}
-                onNavigate={() => setOpen(false)}
-              />
-            ))}
-          </div>
-        </>
+        <div
+          role="menu"
+          aria-label="Navigation destinations"
+          className="absolute left-1/2 top-full z-50 mt-2 w-64 max-h-[calc(100dvh_-_5rem)] -translate-x-1/2 overflow-y-auto overscroll-contain rounded-2xl border border-mn-border bg-mn-surface-2 p-2 shadow-2xl motion-safe:animate-[fadeSlide_0.18s_ease-out]"
+        >
+          {MENU_GROUPS.map((group, gi) => (
+            <div key={group.label} className={gi > 0 ? "mt-1 border-t border-mn-border pt-1" : ""}>
+              <p className="px-2.5 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-wider text-mn-muted">
+                {group.label}
+              </p>
+              {group.items.map((l) => (
+                <MenuRow
+                  key={l.href}
+                  href={l.href}
+                  label={l.label}
+                  icon={MENU_ICONS[l.href]}
+                  active={pathname.startsWith(l.href)}
+                  onNavigate={() => setOpen(false)}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
 }
 
-function MobileNavItem({
+function MenuRow({
   href,
   label,
+  icon,
   active,
   onNavigate,
 }: {
   href: string;
   label: string;
+  icon: React.ReactNode;
   active: boolean;
   onNavigate: () => void;
 }) {
@@ -342,12 +434,18 @@ function MobileNavItem({
       href={href}
       role="menuitem"
       onClick={onNavigate}
-      className={`rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
+      className={`flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors motion-reduce:transition-none ${
         active
-          ? "bg-mn-surface-2 font-medium text-mn-text"
-          : "text-mn-muted hover:bg-mn-surface-2 hover:text-mn-text"
+          ? "bg-mn-accent/15 font-medium text-mn-accent"
+          : "text-mn-text-2 hover:bg-mn-surface hover:text-mn-text"
       }`}
     >
+      <span
+        aria-hidden="true"
+        className={`shrink-0 ${active ? "text-mn-accent" : "text-mn-muted"}`}
+      >
+        {icon}
+      </span>
       {label}
     </Link>
   );
