@@ -36,8 +36,10 @@ jobs:
 
       - name: Build static export
         env:
-          # Project-page subpath: https://stevanlohja.github.io/mn-ops-dashboard/
-          NEXT_PUBLIC_BASE_PATH: /mn-ops-dashboard
+          # Project-page subpath: https://stevanlohja.github.io/nighthawk/
+          # (must match the repo name — GitHub Pages serves a project site at
+          # /<repo>/, and a stale value 404s every JS/CSS/font request.)
+          NEXT_PUBLIC_BASE_PATH: /nighthawk
         run: pnpm build
 
       - name: Upload Pages artifact

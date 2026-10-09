@@ -3,8 +3,8 @@ import createMDX from "@next/mdx";
 import path from "node:path";
 
 // basePath is set in CI for the GitHub Pages project subpath
-// (e.g. "/mn-ops-dashboard") and left empty for local dev so the app
-// still works at http://localhost:3000/.
+// (e.g. "/nighthawk", matching the repo name) and left empty for local dev so
+// the app still works at http://localhost:3000/.
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 const nextConfig: NextConfig = {
